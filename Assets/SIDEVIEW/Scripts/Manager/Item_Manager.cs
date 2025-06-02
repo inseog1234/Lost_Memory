@@ -23,7 +23,9 @@ public class Item_Manager : MonoBehaviour
     public GameObject Item_Prefabs;
     public List<ItemData> itemList = new List<ItemData>();
     public List<Sprite> images;
-    public ItemData Create_Item(Vector2 position, int index) {
+    public List<GameObject> Field_Items;
+    public ItemData Create_Item(Vector2 position, int index)
+    {
         GameObject item = Instantiate(Item_Prefabs, position, Quaternion.identity);
         ItemData itemData = new ItemData();
         itemData.index = index;
@@ -36,7 +38,7 @@ public class Item_Manager : MonoBehaviour
         itemData.count_lim = itemList[index].count_lim;
         Item item_Property = item.GetComponent<Item>();
         item.GetComponent<SpriteRenderer>().sprite = images[index];
-        
+
 
         if (itemList[index].rank == 1)
         {
@@ -47,8 +49,8 @@ public class Item_Manager : MonoBehaviour
             item.GetComponent<SpriteRenderer>().color = new Color(255f / 255f, 50f / 255f, 255f / 255f);
         }
 
-        item_Property.SetItem(itemData);    
-
+        item_Property.SetItem(itemData);
+        Field_Items.Add(item);
         return itemData;
     }
 

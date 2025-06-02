@@ -40,6 +40,9 @@ public class Game_Manager : MonoBehaviour
     public List<GameObject> Monsters { get; private set; }
     public List<GameObject> Monsters_OBJ;
     public List<Monster> Monsters_Sc;
+    public Data_Manager data_Manager;
+    public float Game_Time;
+    public bool Set;
     void Start()
     {
         canvas = GameObject.FindWithTag("Main_Canvas");
@@ -52,7 +55,8 @@ public class Game_Manager : MonoBehaviour
         Pade = GameObject.FindWithTag("Map_Pade").GetComponent<Image>();
         uI_Manager = GameObject.FindWithTag("UI_Manager").GetComponent<UI_Manager>();
         item_Manager = GameObject.FindWithTag("Item_Manager").GetComponent<Item_Manager>();
-        cutSceneMod = false;
+        data_Manager = GameObject.FindWithTag("Data_Manager").GetComponent<Data_Manager>();
+        cutSceneMod = true;
 
         Base = 0.5f;
         min = 0.1f;
@@ -63,7 +67,7 @@ public class Game_Manager : MonoBehaviour
         F_Cam_Size = Camera.main.orthographicSize;
 
         CreateMonster(Monsters[2], new Vector2(-2, -0.4f));
-    
+        //data_Manager.Load(data_Manager.Index);
     }
 
     void CutScene_1()
@@ -540,8 +544,18 @@ public class Game_Manager : MonoBehaviour
     
     void Update()
     {
+        Game_Time += Time.deltaTime;
 
-        for (int i = 0; i < Monsters_OBJ.Count; i++) {
+        if (Game_Time >= 0.1f && !Set)
+        {
+            data_Manager.Save_False();
+            data_Manager.Save_False();
+            data_Manager.Load(data_Manager.Index);
+            Set = true;
+        }
+
+        for (int i = 0; i < Monsters_OBJ.Count; i++)
+        {
             if (Monsters_Sc[i].monster == Monster.Monster_State.Dead)
             {
                 Monsters_Sc.Remove(Monsters_Sc[i]);

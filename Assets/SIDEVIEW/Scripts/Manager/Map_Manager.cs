@@ -10,8 +10,8 @@ using UnityEngine.UI;
 public class Map_Manager : MonoBehaviour
 {
     private List<GameObject> childColliders;
-    private int P_Map;
-    private int C_Map;
+    public int P_Map;// { get; private set; }
+    public int C_Map;// { get; private set; }
     private GameObject BackGround_Layer_1;
     private List<GameObject> BackGround_Layer_1_L = new List<GameObject>();
     public List<Sprite> BG_L1; 
@@ -198,18 +198,6 @@ public class Map_Manager : MonoBehaviour
 
             Player.transform.position = Scene_Pos[idx];
 
-            for (int i = 0; i < BackGround_Layer_1.transform.childCount; i++) {
-                BackGround_Layer_1.transform.GetChild(i).GetComponent<SpriteRenderer>().sprite = BG_L1[C_Map];
-            }
-            for (int i = 0; i < BackGround_Layer_2.transform.childCount; i++) {
-                BackGround_Layer_2.transform.GetChild(i).GetComponent<SpriteRenderer>().sprite = BG_L2[C_Map];
-            }
-            for (int i = 0; i < BackGround_Layer_3.transform.childCount; i++) {
-                BackGround_Layer_3.transform.GetChild(i).GetComponent<SpriteRenderer>().sprite = BG_L3[C_Map];
-            }
-            for (int i = 0; i < BackGround_Layer_4.transform.childCount; i++) {
-                BackGround_Layer_4.transform.GetChild(i).GetComponent<SpriteRenderer>().sprite = BG_L4[C_Map];
-            }
             cam.GetComponent<Cam>().SetBorder(Cam_Mov_Bd[C_Map_C]);
             cam.GetComponent<Cam>().SetPosition(Cam_Mov_Bd[C_Map_C].x, cam.GetComponent<Cam>().Target.transform.position.y);
             Base_Offset_Pos = Scene_Pos[idx];
@@ -227,10 +215,24 @@ public class Map_Manager : MonoBehaviour
 
     void Pllx()
     {
-            UpdateParallax(BackGround_Layer_1.transform, parallaxFactors[0]);
-            UpdateParallax(BackGround_Layer_2.transform, parallaxFactors[1]);
-            UpdateParallax(BackGround_Layer_3.transform, parallaxFactors[2]);
-            UpdateParallax(BackGround_Layer_4.transform, parallaxFactors[3]);
+        UpdateParallax(BackGround_Layer_1.transform, parallaxFactors[0]);
+        UpdateParallax(BackGround_Layer_2.transform, parallaxFactors[1]);
+        UpdateParallax(BackGround_Layer_3.transform, parallaxFactors[2]);
+        UpdateParallax(BackGround_Layer_4.transform, parallaxFactors[3]);
+        
+        for (int i = 0; i < BackGround_Layer_1.transform.childCount; i++)
+        {
+            BackGround_Layer_1.transform.GetChild(i).GetComponent<SpriteRenderer>().sprite = BG_L1[C_Map];
+        }
+        for (int i = 0; i < BackGround_Layer_2.transform.childCount; i++) {
+            BackGround_Layer_2.transform.GetChild(i).GetComponent<SpriteRenderer>().sprite = BG_L2[C_Map];
+        }
+        for (int i = 0; i < BackGround_Layer_3.transform.childCount; i++) {
+            BackGround_Layer_3.transform.GetChild(i).GetComponent<SpriteRenderer>().sprite = BG_L3[C_Map];
+        }
+        for (int i = 0; i < BackGround_Layer_4.transform.childCount; i++) {
+            BackGround_Layer_4.transform.GetChild(i).GetComponent<SpriteRenderer>().sprite = BG_L4[C_Map];
+        }
 
         for (int i = 0; i < BackGround_Layer.Count; i++)
         {

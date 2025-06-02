@@ -12,11 +12,17 @@ public class PlayerData
     public int ST;
     public int MaxST;
     public int MT;
+    public int Dir_C;
+
     public Vector2 position;
     public Player_Controller.AttackState attackState;
     public Player_Controller.JumpState jumpState;
     public Player_Controller.MoveState moveState;
+    public bool idleState;
     public int coin;
+    public bool cutScene;
+    public bool Attack_Trigger;
+    public bool Move_Trigger;
     public List<InventorySlot> inventory = new List<InventorySlot>();
 }
 
@@ -31,9 +37,15 @@ public class MonsterData
 [System.Serializable]
 public class MapData
 {
+    public bool Scene;
     public string mapName;
     public float PlayTime;
     public int tutorial_Step;
+    public int C_Map_C;
+    public int P_Map;
+    public int C_Map;
+    public Vector2 Cam_Pos;
+    public bool Cam_Scene;
     public List<MonsterData> monsters = new List<MonsterData>();
 }
 
@@ -61,6 +73,7 @@ public class Data_Manager : MonoBehaviour
 
     private string saveDirectory = @"C:\LostMemory";
     private string saveFile => Path.Combine(saveDirectory, "Data.json");
+    private string saveFile_False => Path.Combine(saveDirectory, "Data_Old.json");
     public List<SaveData> Datas = new List<SaveData>();
     public SaveData curent_Data; //{ get; private set; }
     public bool Data_Scan; //{ get; private set; }
@@ -93,7 +106,7 @@ public class Data_Manager : MonoBehaviour
             string emptyJson = JsonUtility.ToJson(emptyData, true);
             File.WriteAllText(saveFile, emptyJson);
         }
-        Load(0);
+        Load();
     }
 
     void Update()
@@ -116,8 +129,7 @@ public class Data_Manager : MonoBehaviour
             Save();
         }
     }
-
-    public void Save()
+    public void Save_False()
     {
         RootSaveData rootData;
 
@@ -192,6 +204,94 @@ public class Data_Manager : MonoBehaviour
         }
 
         string jsonString = JsonUtility.ToJson(rootData, true);
+        File.WriteAllText(saveFile_False, jsonString);
+    }
+
+    public void Save()
+    {
+        RootSaveData rootData;
+
+        if (File.Exists(saveFile))
+        {
+            string jsonOld = File.ReadAllText(saveFile);
+            rootData = JsonUtility.FromJson<RootSaveData>(jsonOld);
+        }
+        else
+        {
+            rootData = new RootSaveData();
+        }
+
+        if (rootData.Datas == null)
+            rootData.Datas = new List<SaveData>();
+
+        float totalPlayTimeInHours = Time.realtimeSinceStartup / 3600f;
+
+        SaveData newSave = new SaveData();
+        newSave.LastPlayTime = (float)Math.Round(totalPlayTimeInHours, 1);
+
+        newSave.player = new PlayerData
+        {
+            HP = player_Controller.C_Hp,
+            MaxHP = player_Controller.C_Max_Hp,
+            ST = player_Controller.C_St,
+            MaxST = player_Controller.C_Max_St,
+            MT = player_Controller.MT,
+            position = player.transform.position,
+            attackState = player_Controller.Attack_Sys,
+            jumpState = player_Controller.Jump_Sys,
+            moveState = player_Controller.Move_Sys,
+            idleState = player_Controller.Idle_Sys,
+            coin = player_Controller.coin,
+            cutScene = player_Controller.cutScene,
+            Attack_Trigger = player_Controller.Attack_Trigger,
+            Move_Trigger = player_Controller.Move_Trigger,
+            inventory = player_Controller.inventory
+        };
+
+        List<MonsterData> monsterDatas = new List<MonsterData>();
+        for (int i = 0; i < game_Manager.Monsters_OBJ.Count; i++)
+        {
+            if (game_Manager.Monsters_OBJ != null)
+            {
+                MonsterData monsterData = new MonsterData
+                {
+                    position = game_Manager.Monsters_OBJ[i].transform.position,
+                    monsterState = game_Manager.Monsters_Sc[i].monster,
+                    coin = game_Manager.Monsters_Sc[i].coin_count
+                };
+                monsterDatas.Add(monsterData);
+            }
+        }
+
+        newSave.map = new MapData
+        {
+            Scene = game_Manager.cutSceneMod,
+            tutorial_Step = game_Manager.cut_Level,
+            PlayTime = game_Manager.Game_Time,
+            mapName = map_Manager.Map_Name,
+            C_Map_C = map_Manager.C_Map_C,
+            P_Map = map_Manager.P_Map,
+            C_Map = map_Manager.C_Map,
+            Cam_Pos = map_Manager.uI_Manager.camera.transform.position,
+            Cam_Scene = map_Manager.uI_Manager.camera.GetComponent<Cam>().cutScene,
+            monsters = monsterDatas
+        };
+
+        // 기존 리스트에 Index번째 덮어쓰기 or 새로 추가
+        if (rootData.Datas.Count > Index)
+        {
+            rootData.Datas[Index] = newSave;
+        }
+        else
+        {
+            // Index가 범위를 초과하면 빈 슬롯을 채우고 추가
+            while (rootData.Datas.Count < Index)
+                rootData.Datas.Add(new SaveData()); // 빈 데이터로 채움
+
+            rootData.Datas.Add(newSave);
+        }
+
+        string jsonString = JsonUtility.ToJson(rootData, true);
         File.WriteAllText(saveFile, jsonString);
         Load(Index);
     }
@@ -244,38 +344,43 @@ public class Data_Manager : MonoBehaviour
 
         // 필요한 데이터 적용은 여기서 구현
 
-        while (true)
+        if (player != null && !Data_RePlace)
         {
-            if (player != null && !Data_RePlace)
+            player.transform.position = curent_Data.player.position;
+            player_Controller.Attack_Sys = curent_Data.player.attackState;
+            player_Controller.Jump_Sys = curent_Data.player.jumpState;
+            player_Controller.Move_Sys = curent_Data.player.moveState;
+            player_Controller.Idle_Sys = curent_Data.player.idleState;
+            player_Controller.coin = curent_Data.player.coin;
+            player_Controller.cutScene = curent_Data.player.cutScene;
+            player_Controller.Attack_Trigger = curent_Data.player.Attack_Trigger;
+            player_Controller.Move_Trigger = curent_Data.player.Move_Trigger;
+            player_Controller.inventory = curent_Data.player.inventory;
+
+            for (int i = 0; i < game_Manager.Monsters_OBJ.Count; i++)
             {
-                player.transform.position = curent_Data.player.position;
-                player_Controller.Attack_Sys = curent_Data.player.attackState;
-                player_Controller.Jump_Sys = curent_Data.player.jumpState;
-                player_Controller.Move_Sys = curent_Data.player.moveState;
-                player_Controller.coin = curent_Data.player.coin;
-                player_Controller.inventory = curent_Data.player.inventory;
-
-                Debug.Log("ss");
-
-                for (int i = 0; i < game_Manager.Monsters_OBJ.Count; i++)
-                {
-                    // game_Manager.Monsters_OBJ[i]
-                    Destroy(game_Manager.Monsters_OBJ[i], 0.01f);
-                    game_Manager.Monsters_OBJ.Remove(game_Manager.Monsters_OBJ[i]);
-                    game_Manager.Monsters_Sc.Remove(game_Manager.Monsters_Sc[i]);
-                }
-
-                for (int i = 0; i < curent_Data.map.monsters.Count; i++)
-                {
-                    GameObject monster = game_Manager.CreateMonster(game_Manager.Monsters[2], curent_Data.map.monsters[i].position);
-                    monster.GetComponent<Monster>().SetGold(curent_Data.map.monsters[i].coin);
-                }
-
-                game_Manager.cut_Level = curent_Data.map.tutorial_Step;
-                map_Manager.Map_Name = curent_Data.map.mapName;
-                Data_RePlace = true;
-                break;
+                // game_Manager.Monsters_OBJ[i]
+                Destroy(game_Manager.Monsters_OBJ[i], 0.01f);
+                game_Manager.Monsters_OBJ.Remove(game_Manager.Monsters_OBJ[i]);
+                game_Manager.Monsters_Sc.Remove(game_Manager.Monsters_Sc[i]);
             }
+
+            for (int i = 0; i < curent_Data.map.monsters.Count; i++)
+            {
+                GameObject monster = game_Manager.CreateMonster(game_Manager.Monsters[2], curent_Data.map.monsters[i].position);
+                monster.GetComponent<Monster>().SetGold(curent_Data.map.monsters[i].coin);
+            }
+
+            game_Manager.cutSceneMod = curent_Data.map.Scene;
+            game_Manager.cut_Level = curent_Data.map.tutorial_Step;
+            map_Manager.Map_Name = curent_Data.map.mapName;
+            map_Manager.C_Map_C = curent_Data.map.C_Map_C;
+            map_Manager.P_Map = curent_Data.map.P_Map;
+            map_Manager.C_Map = curent_Data.map.C_Map;
+            map_Manager.uI_Manager.camera.GetComponent<Cam>().SetBorder(map_Manager.Cam_Mov_Bd[map_Manager.C_Map_C]);
+            map_Manager.uI_Manager.camera.GetComponent<Cam>().SetPosition(curent_Data.map.Cam_Pos.x, curent_Data.map.Cam_Pos.y);
+            map_Manager.uI_Manager.camera.GetComponent<Cam>().SetCutScene(curent_Data.map.Cam_Scene);
+            Data_RePlace = true;
         }
     }
 }

@@ -102,6 +102,7 @@ public class Player_Controller : MonoBehaviour
     public bool Move_Trigger;
     public List<InventorySlot> inventory = new List<InventorySlot>();
     private Player_Distance player_Distance;
+    private Item_Manager item_Manager;
     void Awake()
     {
         speed = 12;
@@ -120,6 +121,7 @@ public class Player_Controller : MonoBehaviour
         C_St = C_Max_St;
         MT = 15;
         rb = GetComponent<Rigidbody2D>();
+        item_Manager = GameObject.FindWithTag("Item_Manager").GetComponent<Item_Manager>();
         Animator_Controller = GetComponent<Player_Animator_Controller>();
         cutScene = false;
         cutScene_Refs = false;
@@ -544,6 +546,7 @@ public class Player_Controller : MonoBehaviour
                 if (inventory[i] != null && !inventory[i].isEmpty && inventory[i].itemId == itemIndex && inventory[i].count+1 <= inventory[i].count_lim)
                 {
                     inventory[i].count++;
+                    item_Manager.Field_Items.Remove(collider2D.gameObject);
                     Destroy(collider2D.gameObject);
                     return;
                 }
@@ -555,6 +558,7 @@ public class Player_Controller : MonoBehaviour
                 if (inventory[i].isEmpty)
                 {
                     inventory[i] = new InventorySlot(itemIndex, item.Name, item.Description, 1, item.Rank, item.Type, item.Type_A, item.Type_B, item.count_lim);
+                    item_Manager.Field_Items.Remove(collider2D.gameObject);
                     Destroy(collider2D.gameObject);
                     return;
                 }
