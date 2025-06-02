@@ -745,7 +745,8 @@ public class UI_Manager : MonoBehaviour
 
     void Update()
     {
-        
+        if (player_CTLR == null && GameObject.FindGameObjectWithTag("Player") != null) 
+            player_CTLR = GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Controller>();
         LOJIC();
         IN_GAME_UI();
     }

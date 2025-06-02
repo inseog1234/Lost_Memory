@@ -110,7 +110,8 @@ public class Title_Manager : MonoBehaviour
         // 씬 전환
         loadOperation.allowSceneActivation = true;
         data_Manager.Data_Main = true;
-
+        data_Manager.Save();
+        data_Manager.Save();
     }
 
     IEnumerator BlinkText()
@@ -143,10 +144,11 @@ public class Title_Manager : MonoBehaviour
             yield return null;
     }
 
-    void OnButtonClicked(int index)
+    public void OnButtonClicked(int index)
     {
-        data_Manager.Index = index - 2;
-        Debug.Log(index-2);
+        data_Manager.Index = index;
+        data_Manager.Load(data_Manager.Index);
+        
     }
     void BLINK(Material Target)
     {
@@ -188,7 +190,8 @@ public class Title_Manager : MonoBehaviour
                             {
                                 Transform Child = Data_Slot.transform.GetChild(i);
                                 Button btn = Child.GetComponent<Button>();
-                                btn.onClick.AddListener(() => OnButtonClicked(i));
+                                int Temp = i;
+                                btn.onClick.AddListener(() => OnButtonClicked(Temp));
                                 for (int j = 0; j < Child.childCount; j++)
                                 {
                                     Text Info = Child.GetChild(0).GetComponent<Text>();
@@ -216,7 +219,8 @@ public class Title_Manager : MonoBehaviour
                                 Child.SetParent(Data_Slot.transform);
                                 Child.localScale = new Vector3(1.3f, 1, 1);
                                 Button btn = Child.GetComponent<Button>();
-                                btn.onClick.AddListener(() => OnButtonClicked(i));
+                                int Temp = i;
+                                btn.onClick.AddListener(() => OnButtonClicked(Temp));
                                 for (int j = 0; j < Child.childCount; j++)
                                 {
                                     Text Info = Child.GetChild(0).GetComponent<Text>();
@@ -233,7 +237,8 @@ public class Title_Manager : MonoBehaviour
                                 {
                                     Transform Child = Data_Slot.transform.GetChild(i);
                                     Button btn = Child.GetComponent<Button>();
-                                    btn.onClick.AddListener(() => OnButtonClicked(i));
+                                    int Temp = i;
+                                    btn.onClick.AddListener(() => OnButtonClicked(Temp));
                                     for (int j = 0; j < Child.childCount; j++)
                                     {
                                         Text Info = Child.GetChild(0).GetComponent<Text>();
@@ -261,7 +266,8 @@ public class Title_Manager : MonoBehaviour
                                     Child.SetParent(Data_Slot.transform);
                                     Child.localScale = new Vector3(1.3f, 1, 1);
                                     Button btn = Child.GetComponent<Button>();
-                                    btn.onClick.AddListener(() => OnButtonClicked(i));
+                                    int Temp = i;
+                                    btn.onClick.AddListener(() => OnButtonClicked(Temp));
                                     for (int j = 0; j < Child.childCount; j++)
                                     {
                                         Text Info = Child.GetChild(0).GetComponent<Text>();

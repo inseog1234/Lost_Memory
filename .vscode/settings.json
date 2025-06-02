@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "1vs1.sln"
+    "dotnet.defaultSolution": "Lost_Memory.sln"
 }

@@ -37,7 +37,7 @@ public class Game_Manager : MonoBehaviour
     public GameObject Said_1;
     public GameObject Said_2;
     private bool Basic_Game_Kit;
-    public List<GameObject> Monsters;
+    public List<GameObject> Monsters { get; private set; }
     public List<GameObject> Monsters_OBJ;
     public List<Monster> Monsters_Sc;
     void Start()
@@ -487,12 +487,13 @@ public class Game_Manager : MonoBehaviour
         }
     }
 
-    void CreateMonster(GameObject Monster_PreFab, Vector2 Pos)
+    public GameObject CreateMonster(GameObject Monster_PreFab, Vector2 Pos)
     {
         GameObject Monster = Instantiate(Monster_PreFab);
         Monster.transform.position = Pos;
         Monsters_OBJ.Add(Monster);
         Monsters_Sc.Add(Monster.GetComponent<Monster>());
+        return Monster;
     }
 
     void Tutorial_4()

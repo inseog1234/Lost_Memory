@@ -44,7 +44,7 @@ public class Map_Manager : MonoBehaviour
     public Game_Manager game_Manager;
     public GameObject BK;
     private float[] parallaxFactors;
-    public string Map_Name { get; private set; }
+    public string Map_Name;
     void Awake()
     {
         childColliders = new List<GameObject>();

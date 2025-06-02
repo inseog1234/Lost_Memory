@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Codice.Client.BaseCommands;
 using UnityEngine;
 
 [System.Serializable]
@@ -65,6 +66,7 @@ public class Data_Manager : MonoBehaviour
     public bool Data_Scan; //{ get; private set; }
     public int Index;
     public bool Data_Main;
+    public bool Data_RePlace;
 
     private void Awake()
     {
@@ -86,12 +88,10 @@ public class Data_Manager : MonoBehaviour
         if (!Directory.Exists(saveDirectory))
         {
             Directory.CreateDirectory(saveDirectory);
-            Debug.Log("폴더 생성됨: " + saveDirectory);
 
             RootSaveData emptyData = new RootSaveData();
             string emptyJson = JsonUtility.ToJson(emptyData, true);
             File.WriteAllText(saveFile, emptyJson);
-            Debug.Log("빈 JSON 파일 생성됨: " + saveFile);
         }
         Load(0);
     }
@@ -111,11 +111,12 @@ public class Data_Manager : MonoBehaviour
                 game_Manager = GameObject.FindWithTag("Game_Manager").GetComponent<Game_Manager>();
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha7) && Data_Main) {
+        if (Input.GetKeyDown(KeyCode.Alpha7) && Data_Main)
+        {
             Save();
         }
     }
-    
+
     public void Save()
     {
         RootSaveData rootData;
@@ -192,40 +193,89 @@ public class Data_Manager : MonoBehaviour
 
         string jsonString = JsonUtility.ToJson(rootData, true);
         File.WriteAllText(saveFile, jsonString);
-        Debug.Log($"저장 완료: {saveFile} (Index: {Index})");
+        Load(Index);
     }
 
-    public void Load(int index)
+    public void Load()
     {
         if (!File.Exists(saveFile))
         {
-            Debug.LogWarning("저장된 파일이 존재하지 않습니다.");
             return;
         }
 
         string jsonString = File.ReadAllText(saveFile);
         RootSaveData rootData = JsonUtility.FromJson<RootSaveData>(jsonString);
         Datas = new List<SaveData>();
-        Debug.Log($"데이터 초기화 완료");
 
         for (int i = 0; i < rootData.Datas.Count; i++)
         {
             Datas.Add(rootData.Datas[i]);
-            Debug.Log($"로드 완료: {i}번째 데이터");
+        }
+
+        Data_Scan = true;
+        // 필요한 데이터 적용은 여기서 구현
+    }
+
+    public void Load(int index)
+    {
+        if (!File.Exists(saveFile))
+        {
+            return;
+        }
+
+        string jsonString = File.ReadAllText(saveFile);
+        RootSaveData rootData = JsonUtility.FromJson<RootSaveData>(jsonString);
+        Datas = new List<SaveData>();
+
+        for (int i = 0; i < rootData.Datas.Count; i++)
+        {
+            Datas.Add(rootData.Datas[i]);
         }
 
         Data_Scan = true;
 
         if (rootData.Datas.Count <= index)
         {
-            Debug.LogWarning("해당 인덱스의 세이브 데이터가 없습니다.");
+            curent_Data = null;
             return;
         }
 
         curent_Data = rootData.Datas[index];
-        
-        Debug.Log("로드 완료: " + JsonUtility.ToJson(curent_Data, true));
 
         // 필요한 데이터 적용은 여기서 구현
+
+        while (true)
+        {
+            if (player != null && !Data_RePlace)
+            {
+                player.transform.position = curent_Data.player.position;
+                player_Controller.Attack_Sys = curent_Data.player.attackState;
+                player_Controller.Jump_Sys = curent_Data.player.jumpState;
+                player_Controller.Move_Sys = curent_Data.player.moveState;
+                player_Controller.coin = curent_Data.player.coin;
+                player_Controller.inventory = curent_Data.player.inventory;
+
+                Debug.Log("ss");
+
+                for (int i = 0; i < game_Manager.Monsters_OBJ.Count; i++)
+                {
+                    // game_Manager.Monsters_OBJ[i]
+                    Destroy(game_Manager.Monsters_OBJ[i], 0.01f);
+                    game_Manager.Monsters_OBJ.Remove(game_Manager.Monsters_OBJ[i]);
+                    game_Manager.Monsters_Sc.Remove(game_Manager.Monsters_Sc[i]);
+                }
+
+                for (int i = 0; i < curent_Data.map.monsters.Count; i++)
+                {
+                    GameObject monster = game_Manager.CreateMonster(game_Manager.Monsters[2], curent_Data.map.monsters[i].position);
+                    monster.GetComponent<Monster>().SetGold(curent_Data.map.monsters[i].coin);
+                }
+
+                game_Manager.cut_Level = curent_Data.map.tutorial_Step;
+                map_Manager.Map_Name = curent_Data.map.mapName;
+                Data_RePlace = true;
+                break;
+            }
+        }
     }
 }
