@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags:
+  - Map_Pade
+  - BG_L1
+  - BG_L2
+  - BG_L3
+  - BG_L4
+  - UI_Manager
+  - HP_bar_BG
+  - HP_bar
+  - HP_bar_Lerp
+  - Stamina_bar_BG
+  - Stamina_bar
+  - Mental_bar
+  - Map_Manager
+  - Ground
+  - coin
+  - Game_Manager
+  - cinematic_Up
+  - cinematic_Down
+  - Main_Canvas
+  - BK
+  - Item_Manager
+  - Item
+  - Inventory
+  - Slot
+  - Equip_Slot
+  - Data_Manager
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - coin
+  - Player
+  - Enemy
+  - BK
+  - 1
+  - 2
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Test
+    uniqueID: 3619421797
+    locked: 0
+  m_RenderingLayers:
+  - Default
