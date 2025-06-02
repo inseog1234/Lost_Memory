@@ -51,6 +51,8 @@ public class Item_Manager : MonoBehaviour
 
         item_Property.SetItem(itemData);
         Field_Items.Add(item);
+
+        Debug.Log("d");
         return itemData;
     }
 

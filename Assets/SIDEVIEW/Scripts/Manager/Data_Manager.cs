@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Codice.Client.BaseCommands;
+using JetBrains.Annotations;
 using UnityEngine;
 
 [System.Serializable]
@@ -29,9 +30,17 @@ public class PlayerData
 [System.Serializable]
 public class MonsterData
 {
+    public int Type;
     public Vector2 position;
     public Monster.Monster_State monsterState;
     public int coin;
+}
+
+[System.Serializable]
+public class Item_Data
+{
+    public int index;
+    public Vector2 position;
 }
 
 [System.Serializable]
@@ -47,6 +56,9 @@ public class MapData
     public Vector2 Cam_Pos;
     public bool Cam_Scene;
     public List<MonsterData> monsters = new List<MonsterData>();
+    public List<Item_Data> Field_Items = new List<Item_Data>();
+    public bool Basic_Game_Kit;
+    public bool Set_2;
 }
 
 [System.Serializable]
@@ -70,6 +82,7 @@ public class Data_Manager : MonoBehaviour
 
     private Map_Manager map_Manager;
     private Game_Manager game_Manager;
+    private Item_Manager item_Manager;
 
     private string saveDirectory = @"C:\LostMemory";
     private string saveFile => Path.Combine(saveDirectory, "Data.json");
@@ -97,21 +110,24 @@ public class Data_Manager : MonoBehaviour
             map_Manager = GameObject.FindWithTag("Map_Manager").GetComponent<Map_Manager>();
         if (GameObject.FindWithTag("Game_Manager") != null)
             game_Manager = GameObject.FindWithTag("Game_Manager").GetComponent<Game_Manager>();
+        if (GameObject.FindWithTag("Item_Manager") != null) 
+            item_Manager = GameObject.FindWithTag("Item_Manager").GetComponent<Item_Manager>();
 
         if (!Directory.Exists(saveDirectory))
-        {
-            Directory.CreateDirectory(saveDirectory);
+            {
+                Directory.CreateDirectory(saveDirectory);
 
-            RootSaveData emptyData = new RootSaveData();
-            string emptyJson = JsonUtility.ToJson(emptyData, true);
-            File.WriteAllText(saveFile, emptyJson);
-        }
+                RootSaveData emptyData = new RootSaveData();
+                string emptyJson = JsonUtility.ToJson(emptyData, true);
+                File.WriteAllText(saveFile, emptyJson);
+            }
         Load();
     }
 
     void Update()
     {
-        if (player == null && Data_Main) {
+        if (player == null && Data_Main)
+        {
             player = GameObject.FindWithTag("Player");
             if (player != null)
             {
@@ -122,6 +138,9 @@ public class Data_Manager : MonoBehaviour
                 map_Manager = GameObject.FindWithTag("Map_Manager").GetComponent<Map_Manager>();
             if (GameObject.FindWithTag("Game_Manager") != null)
                 game_Manager = GameObject.FindWithTag("Game_Manager").GetComponent<Game_Manager>();
+            if (GameObject.FindWithTag("Item_Manager") != null) 
+                item_Manager = GameObject.FindWithTag("Item_Manager").GetComponent<Item_Manager>();
+
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha7) && Data_Main)
@@ -163,7 +182,7 @@ public class Data_Manager : MonoBehaviour
             jumpState = player_Controller.Jump_Sys,
             moveState = player_Controller.Move_Sys,
             coin = player_Controller.coin,
-            inventory = player_Controller.inventory
+            inventory = player_Controller.inventory,
         };
 
         List<MonsterData> monsterDatas = new List<MonsterData>();
@@ -255,6 +274,7 @@ public class Data_Manager : MonoBehaviour
             {
                 MonsterData monsterData = new MonsterData
                 {
+                    Type = game_Manager.Monsters_Sc[i].Type,
                     position = game_Manager.Monsters_OBJ[i].transform.position,
                     monsterState = game_Manager.Monsters_Sc[i].monster,
                     coin = game_Manager.Monsters_Sc[i].coin_count
@@ -263,6 +283,19 @@ public class Data_Manager : MonoBehaviour
             }
         }
 
+        List<Item_Data> item_Datas = new List<Item_Data>();
+        for (int i = 0; i < item_Manager.Field_Items.Count; i++) {
+            if (item_Manager.Field_Items != null)
+            {
+                Item_Data item_Data = new Item_Data
+                {
+                    index = item_Manager.Field_Items[i].GetComponent<Item>().index,
+                    position = item_Manager.Field_Items[i].transform.position
+                };
+                item_Datas.Add(item_Data);
+            }
+        }
+        
         newSave.map = new MapData
         {
             Scene = game_Manager.cutSceneMod,
@@ -274,7 +307,10 @@ public class Data_Manager : MonoBehaviour
             C_Map = map_Manager.C_Map,
             Cam_Pos = map_Manager.uI_Manager.camera.transform.position,
             Cam_Scene = map_Manager.uI_Manager.camera.GetComponent<Cam>().cutScene,
-            monsters = monsterDatas
+            monsters = monsterDatas,
+            Field_Items = item_Datas,
+            Basic_Game_Kit = game_Manager.Basic_Game_Kit,
+            Set_2 = game_Manager.Set_2
         };
 
         // 기존 리스트에 Index번째 덮어쓰기 or 새로 추가
@@ -343,9 +379,12 @@ public class Data_Manager : MonoBehaviour
         curent_Data = rootData.Datas[index];
 
         // 필요한 데이터 적용은 여기서 구현
-
+        
+        
         if (player != null && !Data_RePlace)
         {
+            int Count = curent_Data.map.Field_Items.Count;
+            
             player.transform.position = curent_Data.player.position;
             player_Controller.Attack_Sys = curent_Data.player.attackState;
             player_Controller.Jump_Sys = curent_Data.player.jumpState;
@@ -367,9 +406,12 @@ public class Data_Manager : MonoBehaviour
 
             for (int i = 0; i < curent_Data.map.monsters.Count; i++)
             {
-                GameObject monster = game_Manager.CreateMonster(game_Manager.Monsters[2], curent_Data.map.monsters[i].position);
+                GameObject monster = game_Manager.CreateMonster(game_Manager.Monsters[curent_Data.map.monsters[i].Type], curent_Data.map.monsters[i].position);
                 monster.GetComponent<Monster>().SetGold(curent_Data.map.monsters[i].coin);
+                monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
             }
+
+            game_Manager.SpawnITem(Count, curent_Data.map.Field_Items);
 
             game_Manager.cutSceneMod = curent_Data.map.Scene;
             game_Manager.cut_Level = curent_Data.map.tutorial_Step;
@@ -380,6 +422,8 @@ public class Data_Manager : MonoBehaviour
             map_Manager.uI_Manager.camera.GetComponent<Cam>().SetBorder(map_Manager.Cam_Mov_Bd[map_Manager.C_Map_C]);
             map_Manager.uI_Manager.camera.GetComponent<Cam>().SetPosition(curent_Data.map.Cam_Pos.x, curent_Data.map.Cam_Pos.y);
             map_Manager.uI_Manager.camera.GetComponent<Cam>().SetCutScene(curent_Data.map.Cam_Scene);
+            game_Manager.Basic_Game_Kit = curent_Data.map.Basic_Game_Kit;
+            game_Manager.Set_2 = curent_Data.map.Set_2;
             Data_RePlace = true;
         }
     }

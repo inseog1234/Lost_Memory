@@ -17,7 +17,7 @@ public class Monster : MonoBehaviour
     public float currentHP;
     public float moveSpeed;
     private int Damage;
-    private int Type;
+    public int Type;
 
     public Vector2 home;
     public enum Monster_State {

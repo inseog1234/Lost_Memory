@@ -30,6 +30,8 @@ TagManager:
   - Slot
   - Equip_Slot
   - Data_Manager
+  - DutoMapGrid
+  - WeakMapGrid
   layers:
   - Default
   - TransparentFX

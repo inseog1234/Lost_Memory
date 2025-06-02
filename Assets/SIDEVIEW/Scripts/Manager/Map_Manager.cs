@@ -265,7 +265,6 @@ public class Map_Manager : MonoBehaviour
                     }
 
                     BackGround_Layer[i][j].transform.position = new Vector2(BackGround_Layer[i][TargetX].transform.position.x + 16, BackGround_Layer[i][j].transform.position.y);
-                    Debug.Log(TargetX);
                 }
                 else if (PosX > 1)
                 {
@@ -284,7 +283,6 @@ public class Map_Manager : MonoBehaviour
                     }
 
                     BackGround_Layer[i][j].transform.position = new Vector2(BackGround_Layer[i][TargetX].transform.position.x - 16, BackGround_Layer[i][j].transform.position.y);
-                    Debug.Log(TargetX);
                 }
             }
         }

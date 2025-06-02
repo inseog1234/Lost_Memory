@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using PlasticPipe.PlasticProtocol.Messages;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,13 +37,15 @@ public class Game_Manager : MonoBehaviour
     private float F_Cam_Size;
     public GameObject Said_1;
     public GameObject Said_2;
-    private bool Basic_Game_Kit;
-    public List<GameObject> Monsters { get; private set; }
+    public bool Basic_Game_Kit;
+    [SerializeField] public List<GameObject> Monsters;
     public List<GameObject> Monsters_OBJ;
     public List<Monster> Monsters_Sc;
     public Data_Manager data_Manager;
     public float Game_Time;
     public bool Set;
+    public bool Set_2;
+    public GameObject Target_monster;
     void Start()
     {
         canvas = GameObject.FindWithTag("Main_Canvas");
@@ -66,7 +69,7 @@ public class Game_Manager : MonoBehaviour
 
         F_Cam_Size = Camera.main.orthographicSize;
 
-        CreateMonster(Monsters[2], new Vector2(-2, -0.4f));
+        // CreateMonster(Monsters[2], new Vector2(-2, -0.4f));
         //data_Manager.Load(data_Manager.Index);
     }
 
@@ -246,7 +249,7 @@ public class Game_Manager : MonoBehaviour
                     Trigger_3 = false;
                     Trigger_4 = 0;
                     Trigger_5 = 0;
-                    
+
                 }
             }
         }
@@ -342,7 +345,7 @@ public class Game_Manager : MonoBehaviour
 
     void Tutorial_5()
     {
-        
+
     }
 
     void Tutorial_3()
@@ -371,7 +374,7 @@ public class Game_Manager : MonoBehaviour
         {
             if (!Trigger)
             {
-                CreateMonster(Monsters[2], new Vector2(-2, -0.4f));
+                Target_monster = CreateMonster(Monsters[2], new Vector2(-2, -0.4f));
                 Trigger = true;
             }
             Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, 9f, 2f * Time.deltaTime);
@@ -381,21 +384,21 @@ public class Game_Manager : MonoBehaviour
         {
             if (Trigger_2 == 1)
             {
-                Said_1 = uI_Manager.Said(">.<", Monsters_OBJ[0].transform.position.x - 1.5f, Monsters_OBJ[0].transform.position.y - 0.5f, 1f, new Vector3(50, 50, 255), 0.0f, 2f, 0.01f, 0.03f, true);
+                Said_1 = uI_Manager.Said(">.<", Target_monster.transform.position.x - 1.5f, Target_monster.transform.position.y - 0.5f, 1f, new Vector3(50, 50, 255), 0.0f, 2f, 0.01f, 0.03f, true);
                 Trigger = false;
                 Trigger_2 = 2;
             }
         }
         else if (cutScene_Time <= 30 && !Trigger)
         {
-            Monsters_OBJ[0].GetComponent<Monster>().cutScene = true;
-            bool isMoving = Monsters_OBJ[0].GetComponent<Monster>().Moving(new Vector2(-18, Monsters_OBJ[0].transform.position.y), 0.006f);
+            Target_monster.GetComponent<Monster>().cutScene = true;
+            bool isMoving = Target_monster.GetComponent<Monster>().Moving(new Vector2(-18, Target_monster.transform.position.y), 0.006f);
 
             if (!isMoving)
             {
                 if (!Trigger)
                 {
-                    Monsters_OBJ[0].GetComponent<Animator>().speed = 0;
+                    Target_monster.GetComponent<Animator>().speed = 0;
                     Player.GetComponent<Animator>().speed = 0;
                     Trigger = true;
                     Trigger_2 = 0;
@@ -453,14 +456,14 @@ public class Game_Manager : MonoBehaviour
 
                     if (Input.GetMouseButtonDown(0))
                     {
-                        Monsters_OBJ[0].GetComponent<Animator>().speed = 1;
+                        Target_monster.GetComponent<Animator>().speed = 1;
                         Player.GetComponent<Animator>().speed = 1;
                         Trigger_2 = 3;
-                        Monsters_OBJ[0].GetComponent<Rigidbody2D>().linearVelocityX += 2;
+                        Target_monster.GetComponent<Rigidbody2D>().linearVelocityX += 2;
                     }
                     else
                     {
-                        Monsters_OBJ[0].GetComponent<Animator>().speed = 0;
+                        Target_monster.GetComponent<Animator>().speed = 0;
                         Player.GetComponent<Animator>().speed = 0;
                         Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Mathf.Lerp(Pade.color.a, 0.4f, 1f * Time.deltaTime));
 
@@ -472,9 +475,9 @@ public class Game_Manager : MonoBehaviour
                 }
                 else
                 {
-                    Monsters_OBJ[0].GetComponent<Animator>().speed = 1;
+                    Target_monster.GetComponent<Animator>().speed = 1;
                     Player.GetComponent<Animator>().speed = 1;
-                    Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Mathf.Lerp(Pade.color.a, 0f, 1f * Time.deltaTime)); 
+                    Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Mathf.Lerp(Pade.color.a, 0f, 1f * Time.deltaTime));
                 }
             }
 
@@ -491,20 +494,11 @@ public class Game_Manager : MonoBehaviour
         }
     }
 
-    public GameObject CreateMonster(GameObject Monster_PreFab, Vector2 Pos)
-    {
-        GameObject Monster = Instantiate(Monster_PreFab);
-        Monster.transform.position = Pos;
-        Monsters_OBJ.Add(Monster);
-        Monsters_Sc.Add(Monster.GetComponent<Monster>());
-        return Monster;
-    }
-
     void Tutorial_4()
     {
         if (Trigger_2 == 0)
         {
-            Animator animator = Monsters_OBJ[0].GetComponent<Animator>();
+            Animator animator = Target_monster.GetComponent<Animator>();
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
             if (animator.GetCurrentAnimatorClipInfo(0)[0].clip.name == "Enemy_Attack_1" && stateInfo.normalizedTime % 1.0f >= 0.2f)
@@ -517,9 +511,9 @@ public class Game_Manager : MonoBehaviour
 
                 if (Input.GetMouseButtonDown(1))
                 {
-                    Monsters_OBJ[0].GetComponent<Rigidbody2D>().linearVelocityX += 8;
-                    Monsters_OBJ[0].GetComponent<Animator>().speed = 1;
-                    Monsters_OBJ[0].GetComponent<Monster>().cutScene = false;
+                    Target_monster.GetComponent<Rigidbody2D>().linearVelocityX += 8;
+                    Target_monster.GetComponent<Animator>().speed = 1;
+                    Target_monster.GetComponent<Monster>().cutScene = false;
                     Player.GetComponent<Animator>().speed = 1;
                     Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Mathf.Lerp(Pade.color.a, 0f, 1f * Time.deltaTime));
                     iscutSceneEnd = true;
@@ -530,7 +524,7 @@ public class Game_Manager : MonoBehaviour
                 }
                 else
                 {
-                    Monsters_OBJ[0].GetComponent<Animator>().speed = 0;
+                    Target_monster.GetComponent<Animator>().speed = 0;
                     Player.GetComponent<Animator>().speed = 0;
                     Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Mathf.Lerp(Pade.color.a, 0.4f, 1f * Time.deltaTime));
                     for (int i = 0; i < Said_1.transform.childCount; i++)
@@ -541,10 +535,58 @@ public class Game_Manager : MonoBehaviour
             }
         }
     }
-    
+
+    public GameObject CreateMonster(GameObject Monster_PreFab, Vector2 Pos)
+    {
+        GameObject Monster = Instantiate(Monster_PreFab);
+        Monster.transform.position = Pos;
+        Monsters_OBJ.Add(Monster);
+        Monsters_Sc.Add(Monster.GetComponent<Monster>());
+        return Monster;
+    }
+
+    void Spawn_Lojic()
+    {
+        GameObject monster = CreateMonster(Monsters[0], new Vector2(132.3f, 0f));
+        monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+
+        monster = CreateMonster(Monsters[0], new Vector2(142.3f, 0f));
+        monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+
+        monster = CreateMonster(Monsters[0], new Vector2(169.27f, 6.96f));
+        monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+
+        monster = CreateMonster(Monsters[0], new Vector2(152.3f, 0f));
+        monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+
+        monster = CreateMonster(Monsters[0], new Vector2(162.3f, 0f));
+        monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+
+        monster = CreateMonster(Monsters[1], new Vector2(163f, 5.24f));
+        monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+
+        monster = CreateMonster(Monsters[1], new Vector2(166.06f, 11.15f));
+        monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+
+        monster = CreateMonster(Monsters[1], new Vector2(169.41f, 12.79f));
+        monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+
+        monster = CreateMonster(Monsters[1], new Vector2(173.18f, 11.53f));
+        monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+    }
+
+    public void SpawnITem(int Count, List<Item_Data> item_Datas)
+    {
+        for (int i = 0; i < Count; i++)
+        {
+            item_Manager.Create_Item(item_Datas[i].position, item_Datas[i].index);
+        }
+    }
+
     void Update()
     {
         Game_Time += Time.deltaTime;
+
 
         if (Game_Time >= 0.1f && !Set)
         {
@@ -575,6 +617,12 @@ public class Game_Manager : MonoBehaviour
                     player_Controller.inventory[i] = new InventorySlot(item.index, item.Name, item.Description, 1, item.Rank, item.Type, item.Type_A, item.Type_B, item.count_lim);
                 }
 
+                if (!Set_2)
+                {
+                    Spawn_Lojic();
+                    Set_2 = true;
+                }
+
                 Basic_Game_Kit = true;
             }
         }
@@ -582,12 +630,15 @@ public class Game_Manager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            item_Manager.Create_Item(new Vector2(Player.transform.position.x, 20), 1);
             item_Manager.Create_Item(new Vector2(Player.transform.position.x, 22), 2);
             item_Manager.Create_Item(new Vector2(Player.transform.position.x, 24), 3);
             item_Manager.Create_Item(new Vector2(Player.transform.position.x, 26), 4);
             item_Manager.Create_Item(new Vector2(Player.transform.position.x, 28), 5);
         }
+
+        // if () {
+
+        // }
 
         if (cutSceneMod)
         {
@@ -693,7 +744,7 @@ public class Game_Manager : MonoBehaviour
             {
                 cutSceneMod = true;
             }
-            
+
         }
     }
 }
