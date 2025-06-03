@@ -24,36 +24,36 @@ public class Item_Manager : MonoBehaviour
     public List<ItemData> itemList = new List<ItemData>();
     public List<Sprite> images;
     public List<GameObject> Field_Items;
-    public ItemData Create_Item(Vector2 position, int index)
+
+    public GameObject Create_Item(Vector2 position, int index, bool RealItem)
     {
-        GameObject item = Instantiate(Item_Prefabs, position, Quaternion.identity);
-        ItemData itemData = new ItemData();
-        itemData.index = index;
-        itemData.Name = itemList[index].Name;
-        itemData.description = itemList[index].description;
-        itemData.rank = itemList[index].rank;
-        itemData.type = itemList[index].type;
-        itemData.type_A = itemList[index].type_A;
-        itemData.type_B = itemList[index].type_B;
-        itemData.count_lim = itemList[index].count_lim;
-        Item item_Property = item.GetComponent<Item>();
-        item.GetComponent<SpriteRenderer>().sprite = images[index];
+        if (index != 0 && RealItem) {
+            GameObject item = Instantiate(Item_Prefabs, position, Quaternion.identity);
+            ItemData itemData = new ItemData();
+            itemData.index = index;
+            itemData.Name = itemList[index].Name;
+            itemData.description = itemList[index].description;
+            itemData.rank = itemList[index].rank;
+            itemData.type = itemList[index].type;
+            itemData.type_A = itemList[index].type_A;
+            itemData.type_B = itemList[index].type_B;
+            itemData.count_lim = itemList[index].count_lim;
+            Item item_Property = item.GetComponent<Item>();
+            item.GetComponent<SpriteRenderer>().sprite = images[index];
 
+            if (itemList[index].rank == 1)
+            {
+                item.GetComponent<SpriteRenderer>().color = new Color(50f / 255f, 50f / 255f, 255f / 255f);
+            }
+            else if (itemList[index].rank == 2)
+            {
+                item.GetComponent<SpriteRenderer>().color = new Color(255f / 255f, 50f / 255f, 255f / 255f);
+            }
 
-        if (itemList[index].rank == 1)
-        {
-            item.GetComponent<SpriteRenderer>().color = new Color(50f / 255f, 50f / 255f, 255f / 255f);
+            item_Property.SetItem(itemData);
         }
-        else if (itemList[index].rank == 2)
-        {
-            item.GetComponent<SpriteRenderer>().color = new Color(255f / 255f, 50f / 255f, 255f / 255f);
-        }
 
-        item_Property.SetItem(itemData);
-        Field_Items.Add(item);
-
-        Debug.Log("d");
-        return itemData;
+        return item;
     }
 
     private void Start() {

@@ -577,9 +577,23 @@ public class Game_Manager : MonoBehaviour
 
     public void SpawnITem(int Count, List<Item_Data> item_Datas)
     {
+        int F_Count = Field_Items.Count + Count;
+        
         for (int i = 0; i < Count; i++)
         {
-            item_Manager.Create_Item(item_Datas[i].position, item_Datas[i].index);
+            Field_Items.Add(item_Manager.Create_Item(item_Datas[i].position, item_Datas[i].index));
+        }
+
+        Out_Remove_Item(F_Count);
+    }
+
+    public void Out_Remove_Item(int F_Count) {
+        int out_count = Field_Items.Count - F_count;
+        if (out_count > 0) {
+            for (int i = 0; i < out_count;) {
+                i++
+                Field_Items.Remove(Field_Items[F_Count+i]);
+            }
         }
     }
 
@@ -630,15 +644,15 @@ public class Game_Manager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            item_Manager.Create_Item(new Vector2(Player.transform.position.x, 22), 2);
-            item_Manager.Create_Item(new Vector2(Player.transform.position.x, 24), 3);
-            item_Manager.Create_Item(new Vector2(Player.transform.position.x, 26), 4);
-            item_Manager.Create_Item(new Vector2(Player.transform.position.x, 28), 5);
+            int F_Count = Field_Items.Count + 4;
+            
+            item_Manager.Field_Items.Add(item_Manager.Create_Item(new Vector2(Player.transform.position.x, 22), 2));
+            item_Manager.Field_Items.Add(item_Manager.Create_Item(new Vector2(Player.transform.position.x, 24), 3));
+            item_Manager.Field_Items.Add(item_Manager.Create_Item(new Vector2(Player.transform.position.x, 26), 4));
+            item_Manager.Field_Items.Add(item_Manager.Create_Item(new Vector2(Player.transform.position.x, 28), 5));
+        
+            Out_Remove_Item(F_Count);
         }
-
-        // if () {
-
-        // }
 
         if (cutSceneMod)
         {
