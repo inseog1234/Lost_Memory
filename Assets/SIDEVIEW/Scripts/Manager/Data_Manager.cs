@@ -396,7 +396,8 @@ public class Data_Manager : MonoBehaviour
             player_Controller.Move_Trigger = curent_Data.player.Move_Trigger;
             player_Controller.inventory = curent_Data.player.inventory;
 
-            for (int i = 0; i < game_Manager.Monsters_OBJ.Count; i++)
+            int Step_count = game_Manager.Monsters_OBJ.Count;
+            for (int i = 0; i < Step_count; i++)
             {
                 // game_Manager.Monsters_OBJ[i]
                 Destroy(game_Manager.Monsters_OBJ[i], 0.01f);
@@ -404,18 +405,19 @@ public class Data_Manager : MonoBehaviour
                 game_Manager.Monsters_Sc.Remove(game_Manager.Monsters_Sc[i]);
             }
 
-            for (int i = 0; i < curent_Data.map.monsters.Count; i++)
+            Step_count = curent_Data.map.monsters.Count;
+            for (int i = 0; i < Step_count; i++)
             {
-                GameObject monster = game_Manager.CreateMonster(game_Manager.Monsters[curent_Data.map.monsters[i].Type], curent_Data.map.monsters[i].position);
-                monster.GetComponent<Monster>().SetGold(curent_Data.map.monsters[i].coin);
-                monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+                if (i < Step_count) {
+                    GameObject monster = game_Manager.CreateMonster(game_Manager.Monsters[curent_Data.map.monsters[i].Type], curent_Data.map.monsters[i].position);
+                    monster.GetComponent<Monster>().SetGold(curent_Data.map.monsters[i].coin);
+                    monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
+                }
             }
 
-            int Step_count = curent_Data.map.Field_Items.Count;
-            // int cur_count = 
+            Step_count = curent_Data.map.Field_Items.Count;
             for (int i = 0; i < Step_count; i++) {
                 GameObject Item = item_Manager.Create_Item(curent_Data.map.Field_Items[i].position, curent_Data.map.Field_Items[i].index);
-                Debug.Log($"{curent_Data.map.Field_Items[i].position}, {curent_Data.map.Field_Items[i].index}");
             }
 
             
