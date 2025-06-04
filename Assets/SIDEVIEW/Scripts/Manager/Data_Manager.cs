@@ -411,7 +411,14 @@ public class Data_Manager : MonoBehaviour
                 monster.transform.SetParent(GameObject.FindWithTag("WeakMapGrid").transform);
             }
 
-            game_Manager.SpawnITem(Count, curent_Data.map.Field_Items);
+            int Step_count = curent_Data.map.Field_Items.Count;
+            // int cur_count = 
+            for (int i = 0; i < Step_count; i++) {
+                GameObject Item = item_Manager.Create_Item(curent_Data.map.Field_Items[i].position, curent_Data.map.Field_Items[i].index);
+                Debug.Log($"{curent_Data.map.Field_Items[i].position}, {curent_Data.map.Field_Items[i].index}");
+            }
+
+            
 
             game_Manager.cutSceneMod = curent_Data.map.Scene;
             game_Manager.cut_Level = curent_Data.map.tutorial_Step;

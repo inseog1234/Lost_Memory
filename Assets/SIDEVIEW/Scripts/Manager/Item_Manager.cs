@@ -25,40 +25,50 @@ public class Item_Manager : MonoBehaviour
     public List<Sprite> images;
     public List<GameObject> Field_Items;
 
-    public GameObject Create_Item(Vector2 position, int index, bool RealItem)
+    public GameObject Create_Item(Vector2 position, int index)
     {
-        if (index != 0 && RealItem) {
-            GameObject item = Instantiate(Item_Prefabs, position, Quaternion.identity);
-            ItemData itemData = new ItemData();
-            itemData.index = index;
-            itemData.Name = itemList[index].Name;
-            itemData.description = itemList[index].description;
-            itemData.rank = itemList[index].rank;
-            itemData.type = itemList[index].type;
-            itemData.type_A = itemList[index].type_A;
-            itemData.type_B = itemList[index].type_B;
-            itemData.count_lim = itemList[index].count_lim;
-            Item item_Property = item.GetComponent<Item>();
-            item.GetComponent<SpriteRenderer>().sprite = images[index];
+        // GameObject item = null;
+        // if (index != 0 && RealItem)
+        // {
+        GameObject item = Instantiate(Item_Prefabs, position, Quaternion.identity);
+        ItemData itemData = new ItemData();
+        itemData.index = index;
+        itemData.Name = itemList[index].Name;
+        itemData.description = itemList[index].description;
+        itemData.rank = itemList[index].rank;
+        itemData.type = itemList[index].type;
+        itemData.type_A = itemList[index].type_A;
+        itemData.type_B = itemList[index].type_B;
+        itemData.count_lim = itemList[index].count_lim;
+        Item item_Property = item.GetComponent<Item>();
+        item.GetComponent<SpriteRenderer>().sprite = images[index];
 
-            if (itemList[index].rank == 1)
-            {
-                item.GetComponent<SpriteRenderer>().color = new Color(50f / 255f, 50f / 255f, 255f / 255f);
-            }
-            else if (itemList[index].rank == 2)
-            {
-                item.GetComponent<SpriteRenderer>().color = new Color(255f / 255f, 50f / 255f, 255f / 255f);
-            }
-
-            item_Property.SetItem(itemData);
+        if (itemList[index].rank == 1)
+        {
+            item.GetComponent<SpriteRenderer>().color = new Color(50f / 255f, 50f / 255f, 255f / 255f);
+        }
+        else if (itemList[index].rank == 2)
+        {
+            item.GetComponent<SpriteRenderer>().color = new Color(255f / 255f, 50f / 255f, 255f / 255f);
         }
 
+        item_Property.SetItem(itemData);
+        // }
+        Field_Items.Add(item);
         return item;
     }
 
-    private void Start() {
+    void Update()
+    {
+        // if () {
+
+        // }
+    }
+
+    private void Start()
+    {
         csvURL = "https://docs.google.com/spreadsheets/d/1Hur5QYDkFhI9mZumyyFZUXRNp6jXbrskP6ilE-9rFrI/export?format=csv&gid=1081823634";
-        StartCoroutine(LoadCSV());    
+        StartCoroutine(LoadCSV());
     }
 
     private IEnumerator LoadCSV()

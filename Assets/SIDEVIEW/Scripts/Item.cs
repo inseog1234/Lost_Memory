@@ -13,13 +13,23 @@ public class Item : MonoBehaviour
     public int Type_Weapon { get; private set; } // 무기 | 왼손 : 0, 오른손 : 1, 양손 : 2
     public int Type_Weapon_Type { get; private set; } // 무기 | 단검 : 0, 너클 : 1, 장검 : 2, 세검 : 3, 철퇴 : 4
     public int count_lim { get; private set; }
+    public bool Fake;
 
     private Item_Manager item_Manager;
 
     void Awake()
     {
         item_Manager = FindAnyObjectByType<Item_Manager>();
-    } 
+    }
+
+    void Update()
+    {
+        if (Name == "" && Description == "" && !Fake)
+        {
+            Destroy(this.gameObject);
+            Fake = true;
+        }
+    }
 
     public void SetItem(ItemData data)
     {
