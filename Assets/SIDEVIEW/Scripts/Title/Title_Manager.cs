@@ -25,14 +25,7 @@ public class Title_Manager : MonoBehaviour
     private Data_Manager data_Manager;
     private GameObject Data_Slot;
 
-    public GameObject loadingUI;
-    public Slider progressBar;
-    public CanvasGroup progressBar_Group;
-    public CanvasGroup pressAnyKeyGroup;     // "아무 키나 누르세요" 텍스트 그룹 (CanvasGroup으로 페이드 처리)
-    public float fadeSpeed = 1f;
 
-    private bool loadingDone = false;
-    private AsyncOperation loadOperation;
     void Start()
     {
         mainCamera = Camera.main;
@@ -61,88 +54,6 @@ public class Title_Manager : MonoBehaviour
     float blinkLerp = 0f;
     float blinkSpeed = 2f;
     int blinkPhase = 0;
-
-    public void GameStart()
-    {
-        StartCoroutine(LoadSceneCoroutine());
-    }
-
-    IEnumerator LoadSceneCoroutine()
-    {
-        loadingUI.SetActive(true);
-        pressAnyKeyGroup.alpha = 0;
-        pressAnyKeyGroup.gameObject.SetActive(false);
-
-        // 페이크 로딩 1초
-        float fakeTime = 1f;
-        float timer = 0f;
-        while (timer < fakeTime)
-        {
-            timer += Time.deltaTime;
-            if (progressBar != null)
-                progressBar.value = timer / fakeTime;
-            yield return null;
-        }
-
-        // 실제 비동기 로딩 (Main 씬), 자동 전환 막기 위해 allowSceneActivation = false
-        loadOperation = SceneManager.LoadSceneAsync("Main");
-        loadOperation.allowSceneActivation = false;
-
-        while (loadOperation.progress < 0.9f)
-        {
-            if (progressBar != null)
-                progressBar.value = Mathf.Lerp(0f, 1f, loadOperation.progress / 0.9f);
-            yield return null;
-        }
-
-        // 로딩 완료 표시
-        if (progressBar != null)
-            progressBar.value = 1f;
-
-        // "아무 키나 누르세요" 텍스트 깜빡임 시작
-        loadingDone = true;
-        pressAnyKeyGroup.gameObject.SetActive(true);
-        StartCoroutine(BlinkText());
-
-        // 아무 키 입력 대기
-        yield return StartCoroutine(WaitForAnyKey());
-
-        // 씬 전환
-        loadOperation.allowSceneActivation = true;
-        data_Manager.Data_Main = true;
-        data_Manager.Save();
-        data_Manager.Save();
-    }
-
-    IEnumerator BlinkText()
-    {
-        while (!loadOperation.isDone)
-        {
-            // 서서히 나타남
-            while (pressAnyKeyGroup.alpha < 1f)
-            {
-                progressBar_Group.alpha -= Time.deltaTime * fadeSpeed;
-                pressAnyKeyGroup.alpha += Time.deltaTime * fadeSpeed;
-                yield return null;
-            }
-
-            // 서서히 사라짐
-            while (pressAnyKeyGroup.alpha > 0f)
-            {
-                pressAnyKeyGroup.alpha -= Time.deltaTime * fadeSpeed;
-                yield return null;
-            }
-
-            yield return null;
-        }
-    }
-
-    IEnumerator WaitForAnyKey()
-    {
-        // 키 입력 대기
-        while (!Input.anyKeyDown)
-            yield return null;
-    }
 
     public void OnButtonClicked(int index)
     {
@@ -181,6 +92,14 @@ public class Title_Manager : MonoBehaviour
                 if (Click_Obj == targetObjects[1])
                 {
                     title_State = Title_State.Play;
+                    for (int i = 0; i < Data_Slot.transform.childCount; i++)
+                    {
+                        if (i >= 1)
+                        {
+                            Destroy(Data_Slot.transform.GetChild(i).gameObject);
+                            break;
+                        }
+                    }
 
                     if (data_Manager.Datas.Count == 0)
                     {
@@ -210,6 +129,10 @@ public class Title_Manager : MonoBehaviour
                     }
                     else
                     {
+                        for (int i = Data_Slot.transform.childCount-1; i > 0; i--) {
+                            Destroy(Data_Slot.transform.GetChild(i).gameObject);
+                        }
+
                         for (int i = 0; i < data_Manager.Datas.Count + 1; i++)
                         {
                             if (i == data_Manager.Datas.Count)

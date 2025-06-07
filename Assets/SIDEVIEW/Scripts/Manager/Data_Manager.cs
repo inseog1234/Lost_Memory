@@ -94,6 +94,8 @@ public class Data_Manager : MonoBehaviour
     public bool Data_Main;
     public bool Data_RePlace;
 
+    private GameObject Loading_Canvas;
+    private Loading_UI loading_UI;
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -112,41 +114,50 @@ public class Data_Manager : MonoBehaviour
             game_Manager = GameObject.FindWithTag("Game_Manager").GetComponent<Game_Manager>();
         if (GameObject.FindWithTag("Item_Manager") != null) 
             item_Manager = GameObject.FindWithTag("Item_Manager").GetComponent<Item_Manager>();
+        if (GameObject.FindWithTag("Loading_UI") != null)
+        {
+            Loading_Canvas = GameObject.FindWithTag("Loading_UI");
+            loading_UI = Loading_Canvas.GetComponent<Loading_UI>();
+        }
 
         if (!Directory.Exists(saveDirectory))
-            {
-                Directory.CreateDirectory(saveDirectory);
+        {
+            Directory.CreateDirectory(saveDirectory);
 
-                RootSaveData emptyData = new RootSaveData();
-                string emptyJson = JsonUtility.ToJson(emptyData, true);
-                File.WriteAllText(saveFile, emptyJson);
-            }
+            RootSaveData emptyData = new RootSaveData();
+            string emptyJson = JsonUtility.ToJson(emptyData, true);
+            File.WriteAllText(saveFile, emptyJson);
+        }
         Load();
     }
 
     void Update()
     {
-        if (player == null && Data_Main)
+        // if (player == null && Data_Main)
+        // {
+
+
+        // }
+        
+        if (GameObject.FindWithTag("Player") != null && player == null)
         {
             player = GameObject.FindWithTag("Player");
-            if (player != null)
-            {
-                player_Controller = player.GetComponent<Player_Controller>();
-            }
-
-            if (GameObject.FindWithTag("Map_Manager") != null)
-                map_Manager = GameObject.FindWithTag("Map_Manager").GetComponent<Map_Manager>();
-            if (GameObject.FindWithTag("Game_Manager") != null)
-                game_Manager = GameObject.FindWithTag("Game_Manager").GetComponent<Game_Manager>();
-            if (GameObject.FindWithTag("Item_Manager") != null) 
-                item_Manager = GameObject.FindWithTag("Item_Manager").GetComponent<Item_Manager>();
-
+            player_Controller = player.GetComponent<Player_Controller>();
         }
+
+        if (GameObject.FindWithTag("Map_Manager") != null && map_Manager== null)
+            map_Manager = GameObject.FindWithTag("Map_Manager").GetComponent<Map_Manager>();
+        if (GameObject.FindWithTag("Game_Manager") != null && game_Manager== null)
+            game_Manager = GameObject.FindWithTag("Game_Manager").GetComponent<Game_Manager>();
+        if (GameObject.FindWithTag("Item_Manager") != null &&item_Manager == null)
+            item_Manager = GameObject.FindWithTag("Item_Manager").GetComponent<Item_Manager>();
 
         if (Input.GetKeyDown(KeyCode.Alpha7) && Data_Main)
         {
             Save();
         }
+
+        Loading_Canvas.SetActive(true);
     }
     public void Save_False()
     {
@@ -400,6 +411,7 @@ public class Data_Manager : MonoBehaviour
             for (int i = 0; i < Step_count; i++)
             {
                 // game_Manager.Monsters_OBJ[i]
+                
                 Destroy(game_Manager.Monsters_OBJ[i], 0.01f);
                 game_Manager.Monsters_OBJ.Remove(game_Manager.Monsters_OBJ[i]);
                 game_Manager.Monsters_Sc.Remove(game_Manager.Monsters_Sc[i]);
@@ -420,8 +432,8 @@ public class Data_Manager : MonoBehaviour
                 GameObject Item = item_Manager.Create_Item(curent_Data.map.Field_Items[i].position, curent_Data.map.Field_Items[i].index);
             }
 
-            
 
+            game_Manager.Game_Time = curent_Data.map.PlayTime;
             game_Manager.cutSceneMod = curent_Data.map.Scene;
             game_Manager.cut_Level = curent_Data.map.tutorial_Step;
             map_Manager.Map_Name = curent_Data.map.mapName;

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1235037609171260226}
   m_Layer: 0
   m_Name: Eyeling
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -203,6 +203,7 @@ MonoBehaviour:
   maxHP: 100
   currentHP: 0
   moveSpeed: 0
+  Type: 0
   home: {x: 0, y: 0}
   monster: 0
   coin:
@@ -211,3 +212,4 @@ MonoBehaviour:
   - {fileID: 7644582528020071128, guid: 68a669e4fe25e654cb929a9c25417fdd, type: 3}
   - {fileID: 6978453163228937509, guid: 541c88c5e268d3d4888a70a3d04b090f, type: 3}
   - {fileID: 7357899028910749918, guid: 8a004a95d6705764f822462d7ef236a3, type: 3}
+  cutScene: 0

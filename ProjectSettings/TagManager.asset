@@ -32,6 +32,8 @@ TagManager:
   - Data_Manager
   - DutoMapGrid
   - WeakMapGrid
+  - Loading_UI
+  - Enemy
   layers:
   - Default
   - TransparentFX

@@ -100,6 +100,7 @@ public class Player_Controller : MonoBehaviour
     public List<GameObject> coins;
     public bool Attack_Trigger;
     public bool Move_Trigger;
+    public bool Inventory_Trigger;
     public List<InventorySlot> inventory = new List<InventorySlot>();
     private Player_Distance player_Distance;
     private Item_Manager item_Manager;

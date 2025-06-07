@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 8714751359325187338}
   m_Layer: 0
   m_Name: Slime
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -203,6 +203,7 @@ MonoBehaviour:
   maxHP: 100
   currentHP: 0
   moveSpeed: 0
+  Type: 0
   home: {x: 0, y: 0}
   monster: 0
   coin:

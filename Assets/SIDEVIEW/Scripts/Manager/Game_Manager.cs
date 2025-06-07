@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NUnit.Framework;
 using PlasticPipe.PlasticProtocol.Messages;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
@@ -46,6 +47,9 @@ public class Game_Manager : MonoBehaviour
     public bool Set;
     public bool Set_2;
     public GameObject Target_monster;
+    public bool Loading;
+    public bool Data_Load;
+    public bool Data_Loading;
     void Start()
     {
         canvas = GameObject.FindWithTag("Main_Canvas");
@@ -79,7 +83,7 @@ public class Game_Manager : MonoBehaviour
         {
             Cam_S.SetPosition(-44f, 0);
             Player.transform.position = new Vector3(-60.35f, 0, 0);
-            boat.transform.position = new Vector3(-61, 0, 0);
+            boat.transform.position = new Vector3(-61, -2, 0);
         }
         else if (cutScene_Time <= 18)
         {
@@ -88,12 +92,11 @@ public class Game_Manager : MonoBehaviour
                 boat.transform.position = new Vector3(boat.transform.position.x + 2 * Time.deltaTime, boat.transform.position.y, boat.transform.position.z);
                 if (Trigger_2 == 0 && (int)cutScene_Time == 5)
                 {
-                    uI_Manager.Said("OoOoOoOops....", Player.transform.position.x, Player.transform.position.y + 1, 1f, new Vector3(255, 0, 0), 0.05f, 2f, 0.01f, 0.05f, true);
+                    uI_Manager.Said("OoOop....", Player.transform.position.x, Player.transform.position.y + 1, 1f, new Vector3(255, 0, 0), 0.05f, 2f, 0.01f, 0.05f, true);
                     Trigger_2 = 1;
                 }
                 else if (Trigger_2 == 1 && (int)cutScene_Time == 10)
                 {
-
                     uI_Manager.Said("x_x...", Player.transform.position.x, Player.transform.position.y + 1, 1f, new Vector3(255, 0, 0), 0.05f, 2f, 0.01f, 0.05f, true);
                     Trigger_2 = 2;
                 }
@@ -172,13 +175,11 @@ public class Game_Manager : MonoBehaviour
                 {
                     Trigger_4 = 1;
                     Trigger_2 = 1;
-                    Debug.Log("A_1");
                 }
                 else if (Input.GetKeyDown(KeyCode.D))
                 {
                     Trigger_4 = 2;
                     Trigger_2 = 1;
-                    Debug.Log("B_1");
                 }
 
                 for (int i = 0; i < Said_1.transform.childCount; i++)
@@ -192,7 +193,6 @@ public class Game_Manager : MonoBehaviour
                 if ((Trigger_4 == 1 && Input.GetKeyDown(KeyCode.D)) || (Trigger_4 == 2 && Input.GetKeyDown(KeyCode.A)))
                 {
                     Trigger_2 = 2;
-                    Debug.Log("A_2 or B_2");
                     Trigger = false;
                 }
 
@@ -274,10 +274,11 @@ public class Game_Manager : MonoBehaviour
         {
             Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, 6f, 2f * Time.deltaTime);
             Cam_S.CutSceneMoving(new Vector2(Player.transform.position.x, Player.transform.position.y + 3f), 1f, true);
-
+            
             if (Trigger_2 == 0 && (int)cutScene_Time == 3)
             {
                 Said_1 = uI_Manager.Said("Pressed the {Tap} key", Cam.transform.position.x, Cam.transform.position.y + 2, 1f, new Vector3(255, 255, 255), 0.05f, 4f, 0f, 0f, true);
+                player_Controller.Inventory_Trigger = true;
                 Trigger_2 = 1;
             }
             if (Trigger_2 == 1 && cutScene_Time >= 3.5)
@@ -579,11 +580,15 @@ public class Game_Manager : MonoBehaviour
     {
         Game_Time += Time.deltaTime;
 
-
-        if (Game_Time >= 0.1f && !Set)
+        if (Data_Loading)
         {
             data_Manager.Save_False();
             data_Manager.Save_False();
+            Data_Loading = false;
+        }
+
+        if (Game_Time >= 0.1f && !Set && Data_Load)
+        {
             data_Manager.Load(data_Manager.Index);
             Set = true;
         }
@@ -629,7 +634,7 @@ public class Game_Manager : MonoBehaviour
             item_Manager.Create_Item(new Vector2(Player.transform.position.x, 28), 5);
         }
 
-        if (cutSceneMod)
+        if (cutSceneMod || Loading)
         {
             if (!iscutScene)
             {
@@ -642,73 +647,73 @@ public class Game_Manager : MonoBehaviour
             player_Controller.cutScene = true;
             Cam_S.SetCutScene(true);
 
-            if (!canvas.activeSelf)
+            if (!Loading)
             {
-                Up.rectTransform.sizeDelta = Vector2.Lerp(Up.rectTransform.sizeDelta, new Vector2(Up.rectTransform.sizeDelta.x, 100f), 3f * Time.deltaTime);
-                Down.rectTransform.sizeDelta = Vector2.Lerp(Down.rectTransform.sizeDelta, new Vector2(Down.rectTransform.sizeDelta.x, 100f), 3f * Time.deltaTime);
-                Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Vector2.Lerp(new Vector2(Pade.color.a, 0), new Vector2(Base * Random.Range(min, max), 0), 3f * Time.deltaTime).x);
-            }
-            else
-            {
-                Up.rectTransform.sizeDelta = Vector2.Lerp(Up.rectTransform.sizeDelta, new Vector2(Up.rectTransform.sizeDelta.x, 0f), 3f * Time.deltaTime);
-                Down.rectTransform.sizeDelta = Vector2.Lerp(Down.rectTransform.sizeDelta, new Vector2(Down.rectTransform.sizeDelta.x, 0f), 3f * Time.deltaTime);
-                Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Vector2.Lerp(new Vector2(Pade.color.a, 0), new Vector2(0, 0), 3f * Time.deltaTime).x);
-            }
-
-
-
-
-            /////
-
-            if (Input.anyKeyDown && cut_Level != 1 && cut_Level != 2 && cut_Level != 3 && cut_Level != 4)
-            {
-                Skip_Time = 0;
-            }
-
-            if (Input.anyKey && cut_Level != 1 && cut_Level != 2 && cut_Level != 3 && cut_Level != 4)
-            {
-                Skip_Time += Time.deltaTime;
-            }
-
-            if (Skip_Time >= 3f)
-            {
-
-                iscutSceneEnd = true;
-                if (cut_Level == 0)
+                if (!canvas.activeSelf)
                 {
-                    Player.transform.position = new Vector2(-20, Player.transform.position.y);
-                    player_Controller.Dir_C = -1;
-                    boat.transform.position = new Vector3(-27.8f, boat.transform.position.y, boat.transform.position.z);
-                    cut_Level = 1;
+                    Up.rectTransform.sizeDelta = Vector2.Lerp(Up.rectTransform.sizeDelta, new Vector2(Up.rectTransform.sizeDelta.x, 100f), 3f * Time.deltaTime);
+                    Down.rectTransform.sizeDelta = Vector2.Lerp(Down.rectTransform.sizeDelta, new Vector2(Down.rectTransform.sizeDelta.x, 100f), 3f * Time.deltaTime);
+                    Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Vector2.Lerp(new Vector2(Pade.color.a, 0), new Vector2(Base * Random.Range(min, max), 0), 3f * Time.deltaTime).x);
                 }
-                Trigger = false;
-                Trigger_2 = 0;
-                Trigger_3 = false;
-                Trigger_4 = 0;
-                Trigger_5 = 0;
-                Skip_Time = 0;
-            }
-            else
-            {
-                if (cut_Level == 0)
+                else
                 {
-                    CutScene_1();
+                    Up.rectTransform.sizeDelta = Vector2.Lerp(Up.rectTransform.sizeDelta, new Vector2(Up.rectTransform.sizeDelta.x, 0f), 3f * Time.deltaTime);
+                    Down.rectTransform.sizeDelta = Vector2.Lerp(Down.rectTransform.sizeDelta, new Vector2(Down.rectTransform.sizeDelta.x, 0f), 3f * Time.deltaTime);
+                    Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Vector2.Lerp(new Vector2(Pade.color.a, 0), new Vector2(0, 0), 3f * Time.deltaTime).x);
                 }
-                else if (cut_Level == 1)
+
+                /////
+
+                if (Input.anyKeyDown && cut_Level != 1 && cut_Level != 2 && cut_Level != 3 && cut_Level != 4)
                 {
-                    Tutorial_1();
+                    Skip_Time = 0;
                 }
-                else if (cut_Level == 2)
+
+                if (Input.anyKey && cut_Level != 1 && cut_Level != 2 && cut_Level != 3 && cut_Level != 4)
                 {
-                    Tutorial_2();
+                    Skip_Time += Time.deltaTime;
                 }
-                else if (cut_Level == 3)
+
+                if (Skip_Time >= 3f)
                 {
-                    Tutorial_3();
+
+                    iscutSceneEnd = true;
+                    if (cut_Level == 0)
+                    {
+                        Player.transform.position = new Vector2(-20, Player.transform.position.y);
+                        player_Controller.Dir_C = -1;
+                        boat.transform.position = new Vector3(-27.8f, boat.transform.position.y, boat.transform.position.z);
+                        cut_Level = 1;
+                    }
+                    Trigger = false;
+                    Trigger_2 = 0;
+                    Trigger_3 = false;
+                    Trigger_4 = 0;
+                    Trigger_5 = 0;
+                    Skip_Time = 0;
                 }
-                else if (cut_Level == 4)
+                else
                 {
-                    Tutorial_4();
+                    if (cut_Level == 0)
+                    {
+                        CutScene_1();
+                    }
+                    else if (cut_Level == 1)
+                    {
+                        Tutorial_1();
+                    }
+                    else if (cut_Level == 2)
+                    {
+                        Tutorial_2();
+                    }
+                    else if (cut_Level == 3)
+                    {
+                        Tutorial_3();
+                    }
+                    else if (cut_Level == 4)
+                    {
+                        Tutorial_4();
+                    }
                 }
             }
 
@@ -716,6 +721,10 @@ public class Game_Manager : MonoBehaviour
 
             if (iscutSceneEnd)
             {
+                if (Loading) {
+                    Loading = false;
+                }
+
                 cutSceneMod = false;
                 player_Controller.cutScene = false;
                 Cam_S.SetCutScene(false);
@@ -729,7 +738,7 @@ public class Game_Manager : MonoBehaviour
             Pade.color = new Color(Pade.color.r, Pade.color.g, Pade.color.b, Vector2.Lerp(new Vector2(Pade.color.a, 0), new Vector2(0, 0), 3f * Time.deltaTime).x);
             canvas.SetActive(true);
 
-            if (cut_Level == 1 || cut_Level == 2 || cut_Level == 3 || cut_Level == 4)
+            if (cut_Level == 0 || cut_Level == 1 || cut_Level == 2 || cut_Level == 3 || cut_Level == 4)
             {
                 cutSceneMod = true;
             }

@@ -120,7 +120,6 @@ public class Player_Animator_Controller : MonoBehaviour
         }
         else {
             animator.Play("Player_Dead");
-            Debug.Log($"{stateInfo.normalizedTime % 1.0f}, {animator.GetCurrentAnimatorClipInfo(0)[0].clip.name}");
         }
         Destroy(GetComponent<Player_Controller>(), 0);
         Destroy(GetComponent<Rigidbody2D>(), 0);
@@ -259,7 +258,6 @@ public class Player_Animator_Controller : MonoBehaviour
                     {
                         player.Attack_Sys = Player_Controller.AttackState.Attacking2;
                         attacked = false;
-                        Debug.Log($"{player.Attack}");
                     }
                 }
 

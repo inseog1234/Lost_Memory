@@ -37,11 +37,12 @@ public class UI_Manager : MonoBehaviour
     public Transform Target_Item_Parent;
     public int Target_Item_Parent_Idx;
     public int Snap_idx;
+    private Loading_UI loading_UI;
     void Inventory()
     {
         for (int i = 0; i < player_CTLR.inventory.Count; i++)
         {
-            if (!player_CTLR.inventory[i].isEmpty)
+            if (loading_UI.loading == 0 && !player_CTLR.inventory[i].isEmpty)
             {
                 if (Items[i] == null)
                 {
@@ -121,7 +122,6 @@ public class UI_Manager : MonoBehaviour
                             Camera.main,
                             out Local_Mouse_Pos
                         );
-
 
                         float F_Pos_Dis = 10000f;
                         Vector2 F_Pos = Vector2.zero;
@@ -310,6 +310,7 @@ public class UI_Manager : MonoBehaviour
         fontSpriteSheetPath = "Font/Eng/Font";
         Eng_font = Resources.LoadAll<Sprite>(fontSpriteSheetPath);
         map_Manager = GameObject.FindWithTag("Map_Manager").GetComponent<Map_Manager>();
+        loading_UI = GameObject.FindWithTag("Loading_UI").GetComponent<Loading_UI>();
         game_Manager = GameObject.FindWithTag("Game_Manager").GetComponent<Game_Manager>();
         first_Position = Hp_Bar_Lerp_IMG.rectTransform.anchoredPosition.x;
         Amount = Hp_Bar_IMG.fillAmount;
@@ -693,7 +694,7 @@ public class UI_Manager : MonoBehaviour
 
     void LOJIC() {
         Inventory();
-        if (Input.GetKeyDown(KeyCode.Tab)) {
+        if (Input.GetKeyDown(KeyCode.Tab)&& (!player_CTLR.cutScene || player_CTLR.Inventory_Trigger)) {
             inventory.SetActive(!inventory.activeSelf);
         }
 
