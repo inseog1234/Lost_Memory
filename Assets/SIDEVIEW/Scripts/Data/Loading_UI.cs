@@ -140,10 +140,14 @@ public class Loading_UI : MonoBehaviour
             timer += Time.deltaTime;
             float t = timer / duration;
             loadingUI_Group.alpha = Mathf.Lerp(maxAlpha, minAlpha, t);
+            yield return null;
         }
 
-        loadingUI_Group.alpha = minAlpha;
-        yield return null;
+        if (loadingUI_Group.alpha == 0)
+        {
+            loadingUI.SetActive(false);
+        }
+        
     }
 
     IEnumerator WaitForAnyKey()

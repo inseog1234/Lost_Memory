@@ -569,7 +569,7 @@ public class Player_Controller : MonoBehaviour
 
     void OnCollisionStay2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("Ground") || other.gameObject.CompareTag("Enemy"))
+        if (other.gameObject.CompareTag("Ground") || other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("Item"))
         {
             position_y = transform.position.y;
 

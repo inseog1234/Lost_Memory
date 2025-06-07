@@ -5,14 +5,32 @@ using Codice.Client.BaseCommands;
 using JetBrains.Annotations;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class PlayerData
 {
-    public int HP;
-    public int MaxHP;
-    public int ST;
-    public int MaxST;
-    public int MT;
+    public int B_HP;
+    public int B_MaxHP;
+    public int B_ST;
+    public int B_MaxST;
+
+    public int P_HP;
+    public int P_MaxHP;
+    public int P_ST;
+    public int P_MaxST;
+
+    public int C_HP;
+    public int C_MaxHP;
+    public int C_ST;
+    public int C_MaxST;
+    public int C_MT;
+
+    public int Damage;
+
+    /// <summary>
+    /// /////////////////////////////////////////////////
+    /// </summary>
+
+
     public int Dir_C;
 
     public Vector2 position;
@@ -27,7 +45,7 @@ public class PlayerData
     public List<InventorySlot> inventory = new List<InventorySlot>();
 }
 
-[System.Serializable]
+[Serializable]
 public class MonsterData
 {
     public int Type;
@@ -36,14 +54,14 @@ public class MonsterData
     public int coin;
 }
 
-[System.Serializable]
+[Serializable]
 public class Item_Data
 {
     public int index;
     public Vector2 position;
 }
 
-[System.Serializable]
+[Serializable]
 public class MapData
 {
     public bool Scene;
@@ -61,15 +79,27 @@ public class MapData
     public bool Set_2;
 }
 
-[System.Serializable]
+[Serializable]
+public class Time_Data
+{
+    public int Year;
+    public int Month;
+    public int day;
+
+    public int Hour;
+    public int Minute;
+    public int Second;
+}
+
+[Serializable]
 public class SaveData
 {
-    public float LastPlayTime;
+    public Time_Data time;
     public PlayerData player;
     public MapData map;
 }
 
-[System.Serializable]
+[Serializable]
 public class RootSaveData
 {
     public List<SaveData> Datas = new List<SaveData>();
@@ -176,18 +206,35 @@ public class Data_Manager : MonoBehaviour
         if (rootData.Datas == null)
             rootData.Datas = new List<SaveData>();
 
-        float totalPlayTimeInHours = Time.realtimeSinceStartup / 3600f;
-
         SaveData newSave = new SaveData();
-        newSave.LastPlayTime = (float)Math.Round(totalPlayTimeInHours, 1);
+
+        newSave.time = new Time_Data
+        {
+            //LastPlayTime = DateTime.Now
+            Year = DateTime.Now.Year,
+            Month = DateTime.Now.Month,
+            day = DateTime.Now.Day,
+            Hour = DateTime.Now.Hour,
+            Minute = DateTime.Now.Minute,
+            Second = DateTime.Now.Second
+        };
 
         newSave.player = new PlayerData
         {
-            HP = player_Controller.C_Hp,
-            MaxHP = player_Controller.C_Max_Hp,
-            ST = player_Controller.C_St,
-            MaxST = player_Controller.C_Max_St,
-            MT = player_Controller.MT,
+            B_HP = player_Controller.Hp,
+            B_MaxHP = player_Controller.Max_Hp,
+            B_ST = player_Controller.St,
+            B_MaxST = player_Controller.Max_St,
+
+            P_HP = player_Controller.P_Hp,
+            P_MaxHP = player_Controller.P_Max_Hp,
+            P_ST = player_Controller.P_St,
+            P_MaxST = player_Controller.P_Max_St,
+            C_HP = player_Controller.C_Hp,
+            C_MaxHP = player_Controller.C_Max_Hp,
+            C_ST = player_Controller.C_St,
+            C_MaxST = player_Controller.C_Max_St,
+            C_MT = player_Controller.MT,
             position = player.transform.position,
             attackState = player_Controller.Attack_Sys,
             jumpState = player_Controller.Jump_Sys,
@@ -253,19 +300,40 @@ public class Data_Manager : MonoBehaviour
 
         if (rootData.Datas == null)
             rootData.Datas = new List<SaveData>();
-
-        float totalPlayTimeInHours = Time.realtimeSinceStartup / 3600f;
-
+        
         SaveData newSave = new SaveData();
-        newSave.LastPlayTime = (float)Math.Round(totalPlayTimeInHours, 1);
+
+        newSave.time = new Time_Data
+        {
+            //LastPlayTime = DateTime.Now
+            Year = DateTime.Now.Year,
+            Month = DateTime.Now.Month,
+            day = DateTime.Now.Day,
+            Hour = DateTime.Now.Hour,
+            Minute = DateTime.Now.Minute,
+            Second = DateTime.Now.Second
+        };
 
         newSave.player = new PlayerData
         {
-            HP = player_Controller.C_Hp,
-            MaxHP = player_Controller.C_Max_Hp,
-            ST = player_Controller.C_St,
-            MaxST = player_Controller.C_Max_St,
-            MT = player_Controller.MT,
+            B_HP = player_Controller.Hp,
+            B_MaxHP = player_Controller.Max_Hp,
+            B_ST = player_Controller.St,
+            B_MaxST = player_Controller.Max_St,
+
+            P_HP = player_Controller.P_Hp,
+            P_MaxHP = player_Controller.P_Max_Hp,
+            P_ST = player_Controller.P_St,
+            P_MaxST = player_Controller.P_Max_St,
+            C_HP = player_Controller.C_Hp,
+            C_MaxHP = player_Controller.C_Max_Hp,
+            C_ST = player_Controller.C_St,
+            C_MaxST = player_Controller.C_Max_St,
+            C_MT = player_Controller.MT,
+
+            Damage = player_Controller.Damage,
+            
+            Dir_C = player_Controller.Dir_C,
             position = player.transform.position,
             attackState = player_Controller.Attack_Sys,
             jumpState = player_Controller.Jump_Sys,
@@ -323,7 +391,6 @@ public class Data_Manager : MonoBehaviour
             Basic_Game_Kit = game_Manager.Basic_Game_Kit,
             Set_2 = game_Manager.Set_2
         };
-
         // 기존 리스트에 Index번째 덮어쓰기 or 새로 추가
         if (rootData.Datas.Count > Index)
         {
@@ -395,7 +462,20 @@ public class Data_Manager : MonoBehaviour
         if (player != null && !Data_RePlace)
         {
             int Count = curent_Data.map.Field_Items.Count;
-            
+
+            // Stats
+            player_Controller.Hp = curent_Data.player.B_HP;
+            player_Controller.Max_Hp = curent_Data.player.B_MaxHP;
+            player_Controller.St = curent_Data.player.B_ST;
+            player_Controller.Max_St = curent_Data.player.B_MaxST;
+
+            player_Controller.P_Hp = curent_Data.player.P_HP;
+            player_Controller.P_Max_Hp = curent_Data.player.P_MaxHP;
+            player_Controller.P_St = curent_Data.player.P_ST;
+            player_Controller.P_Max_St = curent_Data.player.P_MaxST;
+
+            player_Controller.MT = curent_Data.player.C_MT;
+
             player.transform.position = curent_Data.player.position;
             player_Controller.Attack_Sys = curent_Data.player.attackState;
             player_Controller.Jump_Sys = curent_Data.player.jumpState;

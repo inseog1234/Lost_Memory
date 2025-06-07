@@ -165,7 +165,26 @@ public class Title_Manager : MonoBehaviour
                                     for (int j = 0; j < Child.childCount; j++)
                                     {
                                         Text Info = Child.GetChild(0).GetComponent<Text>();
-                                        Info.text = $"{data.map.mapName} / {data.map.PlayTime}\n{data.LastPlayTime}\nHP: {data.player.HP}/{data.player.MaxHP} / ST: {data.player.ST}/{data.player.MaxST}\nMT: {data.player.MT}\nGold: {data.player.coin}";
+
+                                        float Play_Time = data.map.PlayTime; // Mathf.Floor(myFloat * 100f) /  100f
+                                        string Play_Time_s = $"{Play_Time}초";
+                                        if (Play_Time / 60 / 60 / 24 > 1) {
+                                            Play_Time_s = $"{Mathf.Floor(Play_Time / 60 / 60 / 24 * 100f) / 100f}일";
+                                        }
+                                        else if (Play_Time / 60 / 60 > 1)
+                                        {
+                                            Play_Time_s = $"{Mathf.Floor(Play_Time / 60 / 60 * 100f) / 100f}시간";
+                                        }
+                                        else if (Play_Time / 60 > 1)
+                                        {
+                                            Play_Time_s = $"{Mathf.Floor(Play_Time / 60 * 100f) / 100f}분";
+                                        }
+                                        else
+                                        {
+                                            Play_Time_s = $"{Mathf.Floor(Play_Time * 1f) / 1f}초";
+                                        }
+
+                                        Info.text = $"{data.map.mapName} / {Play_Time_s}\n{data.time.Year}.{data.time.Month}.{data.time.day} | {data.time.Hour}:{data.time.Minute}:{data.time.Second}\nHP: {data.player.C_HP}/{data.player.C_MaxHP} / ST: {data.player.C_ST}/{data.player.C_MaxST}\nMT: {data.player.C_MT}\nGold: {data.player.coin}";
                                         Transform Inventory = Child.GetChild(1);
                                         if (!data.player.inventory[52].isEmpty)
                                             Inventory.GetChild(0).GetChild(0).GetComponent<Image>().sprite = item_Manager.images[data.player.inventory[52].itemId];
@@ -194,7 +213,25 @@ public class Title_Manager : MonoBehaviour
                                     for (int j = 0; j < Child.childCount; j++)
                                     {
                                         Text Info = Child.GetChild(0).GetComponent<Text>();
-                                        Info.text = $"{data.map.mapName} / {data.map.PlayTime}\n{data.LastPlayTime}\nHP: {data.player.HP}/{data.player.MaxHP} / ST: {data.player.ST}/{data.player.MaxST}\nMT: {data.player.MT}\nGold: {data.player.coin}";
+                                        float Play_Time = data.map.PlayTime; // Mathf.Floor(myFloat * 100f) /  100f
+                                        string Play_Time_s = $"{Play_Time}초";
+                                        if (Play_Time / 60 / 60 / 24 > 1) {
+                                            Play_Time_s = $"{Mathf.Floor(Play_Time / 60 / 60 / 24 * 100f) / 100f}일";
+                                        }
+                                        else if (Play_Time / 60 / 60 > 1)
+                                        {
+                                            Play_Time_s = $"{Mathf.Floor(Play_Time / 60 / 60 * 100f) / 100f}시간";
+                                        }
+                                        else if (Play_Time / 60 > 1)
+                                        {
+                                            Play_Time_s = $"{Mathf.Floor(Play_Time / 60 * 100f) / 100f}분";
+                                        }
+                                        else
+                                        {
+                                            Play_Time_s = $"{Mathf.Floor(Play_Time * 1f) / 1f}초";
+                                        }
+                                        
+                                        Info.text = $"{data.map.mapName} / {Play_Time_s}\n{data.time.Year}.{data.time.Month}.{data.time.day} | {data.time.Hour}:{data.time.Minute}:{data.time.Second}\nHP: {data.player.C_HP}/{data.player.C_MaxHP} / ST: {data.player.C_ST}/{data.player.C_MaxST}\nMT: {data.player.C_MT}\nGold: {data.player.coin}";
                                         Transform Inventory = Child.GetChild(1);
                                         if (!data.player.inventory[52].isEmpty)
                                             Inventory.GetChild(0).GetChild(0).GetComponent<Image>().sprite = item_Manager.images[data.player.inventory[52].itemId];
