@@ -1,10 +1,4 @@
 using System.Collections.Generic;
-using Codice.Client.BaseCommands;
-using Codice.Client.BaseCommands.LayoutFilters;
-using Codice.CM.SEIDInfo;
-using Unity.VisualScripting.YamlDotNet.Serialization.NamingConventions;
-using UnityEditor;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.UI;
 public class Map_Manager : MonoBehaviour

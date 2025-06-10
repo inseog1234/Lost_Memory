@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; 
+using UnityEngine.EventSystems;
+using UnityEngine.AI;
 public class UI_Manager : MonoBehaviour
 {
     public Image Hp_Bar_BG_IMG, Hp_Bar_IMG, Hp_Bar_Lerp_IMG, Stamina_Bar_BG_IMG, Stamina_Bar_IMG, Mental_IMG;
@@ -17,7 +18,7 @@ public class UI_Manager : MonoBehaviour
     public List<GameObject> words_Type_1 = new List<GameObject>();
     public List<GameObject> words_Type_2 = new List<GameObject>();
     public List<GameObject> words_Type_3 = new List<GameObject>();
-    public GameObject camera { get; private set; }
+    public new GameObject camera { get; private set; }
     // public Camera camera_info { get; private set; }
     public Map_Manager map_Manager;
     public float first_Position;
@@ -38,6 +39,69 @@ public class UI_Manager : MonoBehaviour
     public int Target_Item_Parent_Idx;
     public int Snap_idx;
     private Loading_UI loading_UI;
+
+    public enum ESC_MENU_STATE
+    {
+        NONE, FIRST, CONTINUE, SETTINGS, QUIT
+    }
+    public ESC_MENU_STATE ESC_MENU;
+
+    public Transform ESC_Menu_TS;
+
+    public float Frame_Rate;
+    void Awake()
+    {
+        player_CTLR = GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Controller>();
+
+        Hp_Bar_BG_IMG = GameObject.FindWithTag("HP_bar_BG").GetComponent<Image>();
+        Hp_Bar_IMG = GameObject.FindWithTag("HP_bar").GetComponent<Image>();
+        Hp_Bar_Lerp_IMG = GameObject.FindWithTag("HP_bar_Lerp").GetComponent<Image>();
+        Stamina_Bar_BG_IMG = GameObject.FindWithTag("Stamina_bar_BG").GetComponent<Image>();
+        Stamina_Bar_IMG = GameObject.FindWithTag("Stamina_bar").GetComponent<Image>();
+        Mental_IMG = GameObject.FindWithTag("Mental_bar").GetComponent<Image>();
+        item_Manager = GameObject.FindWithTag("Item_Manager").GetComponent<Item_Manager>();
+        ESC_Menu_TS = GameObject.FindWithTag("ESC_Menu").transform;
+        inventory = GameObject.FindWithTag("Inventory");
+        GameObject slot = GameObject.FindWithTag("Slot");
+        GameObject Equip_slot = GameObject.FindWithTag("Equip_Slot");
+
+        if (slot != null) {
+            for (int i = 0; i < slot.transform.childCount; i++)
+            {
+                for (int j = 0; j < slot.transform.GetChild(i).childCount; j++)
+                {
+                    player_CTLR.inventory.Add(null);
+                    Slot.Add(slot.transform.GetChild(i).GetChild(j).gameObject);
+                    Items.Add(null);
+                }
+            }
+
+            for (int i = 0; i < Equip_slot.transform.childCount; i++) {
+                for (int j = 0; j < Equip_slot.transform.GetChild(i).childCount; j++)
+                {
+                    player_CTLR.inventory.Add(null);
+                    Slot.Add(Equip_slot.transform.GetChild(i).GetChild(j).gameObject);
+                    Items.Add(null);
+                }
+            }
+        }
+
+        canvas = canvas_P;
+        camera = GameObject.FindWithTag("MainCamera");
+        fontSpriteSheetPath = "Font/Eng/Font";
+        Eng_font = Resources.LoadAll<Sprite>(fontSpriteSheetPath);
+        map_Manager = GameObject.FindWithTag("Map_Manager").GetComponent<Map_Manager>();
+        loading_UI = GameObject.FindWithTag("Loading_UI").GetComponent<Loading_UI>();
+        game_Manager = GameObject.FindWithTag("Game_Manager").GetComponent<Game_Manager>();
+        first_Position = Hp_Bar_Lerp_IMG.rectTransform.anchoredPosition.x;
+        Amount = Hp_Bar_IMG.fillAmount;
+
+        if (inventory != null) {
+            inventory.SetActive(false);
+        }
+        
+    }
+
     void Inventory()
     {
         for (int i = 0; i < player_CTLR.inventory.Count; i++)
@@ -81,7 +145,7 @@ public class UI_Manager : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         raycaster.Raycast(data, results);
 
-        
+
 
         for (int m = 0; m < Items.Count; m++)
         {
@@ -102,12 +166,12 @@ public class UI_Manager : MonoBehaviour
                     Target_Item_Parent = Target_Item.transform.parent.parent;
                     Target_Item_Parent_Idx = Target_Item.transform.parent.GetSiblingIndex();
                     Target_Item.transform.parent.SetParent(inventory.transform);
-
                 }
             }
 
             if (Target_Item != null)
             {
+
                 if (Input.GetMouseButton(0))
                 {
                     Mouse_Distance = Vector2.Distance(Mouse_Pos, Input.mousePosition);
@@ -154,13 +218,11 @@ public class UI_Manager : MonoBehaviour
                             Snap_idx = Items.IndexOf(Target_Item);
                             Target_Item.GetComponent<RectTransform>().anchoredPosition = Local_Mouse_Pos;
                         }
-
-
                         Mouse_Event = true;
                     }
                     else if (!Mouse_Event)
                     {
-                        Mouse_Clck_T += Time.deltaTime;
+                        Mouse_Clck_T += Frame_Rate;
                     }
                 }
 
@@ -171,7 +233,6 @@ public class UI_Manager : MonoBehaviour
 
                     if (Mouse_Distance > 5 && Mouse_Clck_T == 0)
                     {
-                        // 드래그 끝
 
                         if (Snap_idx != Items.IndexOf(Target_Item))
                         {
@@ -264,62 +325,31 @@ public class UI_Manager : MonoBehaviour
         }
     }
 
-    void Interaction_Item(int index)
+    GameObject Interaction_Item()
     {
-        
+        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        Collider2D hit = Physics2D.OverlapPoint(mouseWorldPos);
+
+        GameObject Target = hit.gameObject;
+
+        // if (hit != null)
+        // {
+        //     if (Target.tag != "Untagged")
+        //     {
+        //         Debug.Log($"Tag: {Target.tag}");
+        //     }
+        //     else
+        //     {
+        //         Debug.Log($"Name: {Target.name}");
+        //     }
+
+        // }
+
+        return Target;
     }
     
-    void Awake()
-    {
-        player_CTLR = GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Controller>();
 
-        Hp_Bar_BG_IMG = GameObject.FindWithTag("HP_bar_BG").GetComponent<Image>();
-        Hp_Bar_IMG = GameObject.FindWithTag("HP_bar").GetComponent<Image>();
-        Hp_Bar_Lerp_IMG = GameObject.FindWithTag("HP_bar_Lerp").GetComponent<Image>();
-        Stamina_Bar_BG_IMG = GameObject.FindWithTag("Stamina_bar_BG").GetComponent<Image>();
-        Stamina_Bar_IMG = GameObject.FindWithTag("Stamina_bar").GetComponent<Image>();
-        Mental_IMG = GameObject.FindWithTag("Mental_bar").GetComponent<Image>();
-        item_Manager = GameObject.FindWithTag("Item_Manager").GetComponent<Item_Manager>();
-        inventory = GameObject.FindWithTag("Inventory");
-        GameObject slot = GameObject.FindWithTag("Slot");
-        GameObject Equip_slot = GameObject.FindWithTag("Equip_Slot");
-
-        if (slot != null) {
-            for (int i = 0; i < slot.transform.childCount; i++)
-            {
-                for (int j = 0; j < slot.transform.GetChild(i).childCount; j++)
-                {
-                    player_CTLR.inventory.Add(null);
-                    Slot.Add(slot.transform.GetChild(i).GetChild(j).gameObject);
-                    Items.Add(null);
-                }
-            }
-
-            for (int i = 0; i < Equip_slot.transform.childCount; i++) {
-                for (int j = 0; j < Equip_slot.transform.GetChild(i).childCount; j++)
-                {
-                    player_CTLR.inventory.Add(null);
-                    Slot.Add(Equip_slot.transform.GetChild(i).GetChild(j).gameObject);
-                    Items.Add(null);
-                }
-            }
-        }
-
-        canvas = canvas_P;
-        camera = GameObject.FindWithTag("MainCamera");
-        fontSpriteSheetPath = "Font/Eng/Font";
-        Eng_font = Resources.LoadAll<Sprite>(fontSpriteSheetPath);
-        map_Manager = GameObject.FindWithTag("Map_Manager").GetComponent<Map_Manager>();
-        loading_UI = GameObject.FindWithTag("Loading_UI").GetComponent<Loading_UI>();
-        game_Manager = GameObject.FindWithTag("Game_Manager").GetComponent<Game_Manager>();
-        first_Position = Hp_Bar_Lerp_IMG.rectTransform.anchoredPosition.x;
-        Amount = Hp_Bar_IMG.fillAmount;
-
-        if (inventory != null) {
-            inventory.SetActive(false);
-        }
-        
-    }
 
     public GameObject FONT_RENDER(string letter, float x, float y, float size, Vector3 color, int Type)
     {
@@ -662,13 +692,13 @@ public class UI_Manager : MonoBehaviour
                 Hp_Bar_Lerp_IMG.rectTransform.sizeDelta = Vector2.Lerp(
                     Hp_Bar_Lerp_IMG.rectTransform.sizeDelta,
                     new Vector2(0, Hp_Bar_Lerp_IMG.rectTransform.sizeDelta.y),
-                    Time.deltaTime * 4f
+                    Frame_Rate * 4f
                 );
 
                 Duration_1st_Size = Vector2.Lerp(
                     new Vector2(Duration_1st_Size, 0),
                     new Vector2(currentPos, 0),
-                    Time.deltaTime * 4f
+                    Frame_Rate * 4f
                 ).x;
             }
 
@@ -692,11 +722,134 @@ public class UI_Manager : MonoBehaviour
         Mental_IMG.fillAmount = (float)player_CTLR.MT / 100;    
     }
 
-    void LOJIC() {
-        Inventory();
-        if (Input.GetKeyDown(KeyCode.Tab)&& (!player_CTLR.cutScene || player_CTLR.Inventory_Trigger)) {
-            inventory.SetActive(!inventory.activeSelf);
+    void ESC_Menu()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab)) {
+            if ((!player_CTLR.cutScene || player_CTLR.Inventory_Trigger)) {
+                inventory.SetActive(!inventory.activeSelf);
+            }
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (inventory.activeSelf)
+            {
+                inventory.SetActive(!inventory.activeSelf);
+            }
+            else if (ESC_MENU == ESC_MENU_STATE.NONE)
+            {
+                ESC_MENU = ESC_MENU_STATE.FIRST;
+            }
+            else if (ESC_MENU == ESC_MENU_STATE.FIRST)
+            {
+                ESC_MENU = ESC_MENU_STATE.NONE;
+            }
+        }
+
+        GameObject BK0 = ESC_Menu_TS.GetChild(0).gameObject;
+        CanvasGroup BK0_Group = BK0.GetComponent<CanvasGroup>();
+        RectTransform BK0_rect = BK0.GetComponent<RectTransform>();
+
+        GameObject BK1 = ESC_Menu_TS.GetChild(1).gameObject;
+        CanvasGroup BK1_Group = BK1.GetComponent<CanvasGroup>();
+        RectTransform BK1_rect = BK1.GetComponent<RectTransform>();
+
+        GameObject BK2 = ESC_Menu_TS.GetChild(2).gameObject;
+        CanvasGroup BK2_Group = BK2.GetComponent<CanvasGroup>();
+        RectTransform BK2_rect = BK2.GetComponent<RectTransform>();
+
+        if (Time.timeScale > 0) {
+            Frame_Rate = Time.deltaTime;
+        }
+        
+        switch (ESC_MENU)
+        {
+            case ESC_MENU_STATE.NONE:
+                BK0_Group.alpha = Mathf.Lerp(BK0_Group.alpha, 0, 4 * Frame_Rate);
+                BK0_rect.sizeDelta = Vector2.Lerp(BK0_rect.sizeDelta, new Vector2(140, BK0_rect.sizeDelta.y), 4 * Frame_Rate);
+                BK1_Group.alpha = Mathf.Lerp(BK1_Group.alpha, 0, 4 * Frame_Rate);
+                BK1_rect.sizeDelta = Vector2.Lerp(BK1_rect.sizeDelta, new Vector2(110, BK1_rect.sizeDelta.y), 4 * Frame_Rate);
+                BK2_Group.alpha = Mathf.Lerp(BK2_Group.alpha, 0, 4 * Frame_Rate);
+                BK2_rect.sizeDelta = Vector2.Lerp(BK2_rect.sizeDelta, new Vector2(80, BK2_rect.sizeDelta.y), 4 * Frame_Rate);
+
+                if (BK2_Group.alpha <= 0.1f)
+                {
+                    BK0_rect.anchoredPosition = new Vector2(2560, 0);
+                    BK0_Group.alpha = 0;
+                    BK1_rect.anchoredPosition = new Vector2(3840, 0);
+                    BK1_Group.alpha = 0;
+                    BK2_rect.anchoredPosition = new Vector2(5120, 0);
+                    BK2_Group.alpha = 0;
+
+                    Time.timeScale = 1;
+                    player_CTLR.cutScene = false;
+                }
+
+                break;
+
+            case ESC_MENU_STATE.FIRST:
+                BK0_Group.alpha = Mathf.Lerp(BK0_Group.alpha, 1, 4 * Frame_Rate);
+                BK0_rect.sizeDelta = Vector2.Lerp(BK0_rect.sizeDelta, new Vector2(70, BK0_rect.sizeDelta.y), 4 * Frame_Rate);
+                BK1_Group.alpha = Mathf.Lerp(BK1_Group.alpha, 1, 4 * Frame_Rate);
+                BK1_rect.sizeDelta = Vector2.Lerp(BK1_rect.sizeDelta, new Vector2(55, BK1_rect.sizeDelta.y), 4 * Frame_Rate);
+                BK2_Group.alpha = Mathf.Lerp(BK2_Group.alpha, 1, 4 * Frame_Rate);
+                BK2_rect.sizeDelta = Vector2.Lerp(BK2_rect.sizeDelta, new Vector2(40, BK2_rect.sizeDelta.y), 4 * Frame_Rate);
+
+                BK0_rect.anchoredPosition = Vector2.Lerp(BK0_rect.anchoredPosition, Vector2.zero, 4 * Frame_Rate);
+                BK1_rect.anchoredPosition = Vector2.Lerp(BK1_rect.anchoredPosition, Vector2.zero, 4 * Frame_Rate);
+                BK2_rect.anchoredPosition = Vector2.Lerp(BK2_rect.anchoredPosition, Vector2.zero, 4 * Frame_Rate);
+
+                if (Interaction_Item() != null && Input.GetMouseButtonDown(0))
+                {
+                    if (Interaction_Item().tag == "ESC_Menu_Continue")
+                    {
+                        ESC_MENU = ESC_MENU_STATE.CONTINUE;
+                    }
+                    else if (Interaction_Item().tag == "ESC_Menu_Settings")
+                    {
+                        ESC_MENU = ESC_MENU_STATE.SETTINGS;
+                    }
+                    else if (Interaction_Item().tag == "ESC_Menu_Quit")
+                    {
+                        ESC_MENU = ESC_MENU_STATE.QUIT;
+                    }
+                    else if (Interaction_Item().tag == "ESC_Menu_Back")
+                    {
+                        ESC_MENU = ESC_MENU_STATE.NONE;
+                    }
+                }
+
+                Time.timeScale = 0;
+                player_CTLR.cutScene = true;
+                break;
+
+            case ESC_MENU_STATE.CONTINUE:
+                BK0_rect.sizeDelta = Vector2.Lerp(BK0_rect.sizeDelta, new Vector2(-2560, BK0_rect.sizeDelta.y), 4 * Frame_Rate);
+                BK1_rect.sizeDelta = Vector2.Lerp(BK1_rect.sizeDelta, new Vector2(-3840, BK1_rect.sizeDelta.y), 4 * Frame_Rate);
+                BK2_rect.sizeDelta = Vector2.Lerp(BK2_rect.sizeDelta, new Vector2(-5120, BK2_rect.sizeDelta.y), 4 * Frame_Rate);
+
+                BK0_rect.anchoredPosition = Vector2.Lerp(BK0_rect.anchoredPosition, Vector2.zero, 4 * Frame_Rate);
+                BK1_rect.anchoredPosition = Vector2.Lerp(BK1_rect.anchoredPosition, Vector2.zero, 4 * Frame_Rate);
+                BK2_rect.anchoredPosition = Vector2.Lerp(BK2_rect.anchoredPosition, Vector2.zero, 4 * Frame_Rate);
+                break;
+
+            case ESC_MENU_STATE.SETTINGS:
+                break;
+
+            case ESC_MENU_STATE.QUIT:
+                break;
+        } 
+    }
+
+    void LOJIC() {
+        ESC_Menu();
+
+        if (inventory.activeSelf)
+        {
+            Inventory();
+        }
+
+        
 
         if (Input.GetKey(KeyCode.Z))
         {

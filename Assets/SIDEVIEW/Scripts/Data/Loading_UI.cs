@@ -56,7 +56,7 @@ public class Loading_UI : MonoBehaviour
             yield return null;
         }
 
-        loadOperation = SceneManager.LoadSceneAsync("Main");
+        loadOperation = SceneManager.LoadSceneAsync("2.Main");
 
         Data_Load = true;
 

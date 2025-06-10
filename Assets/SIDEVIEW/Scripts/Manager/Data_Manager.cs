@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Codice.Client.BaseCommands;
-using JetBrains.Annotations;
 using UnityEngine;
 
 [Serializable]
@@ -305,7 +303,6 @@ public class Data_Manager : MonoBehaviour
 
         newSave.time = new Time_Data
         {
-            //LastPlayTime = DateTime.Now
             Year = DateTime.Now.Year,
             Month = DateTime.Now.Month,
             day = DateTime.Now.Day,
@@ -325,6 +322,7 @@ public class Data_Manager : MonoBehaviour
             P_MaxHP = player_Controller.P_Max_Hp,
             P_ST = player_Controller.P_St,
             P_MaxST = player_Controller.P_Max_St,
+
             C_HP = player_Controller.C_Hp,
             C_MaxHP = player_Controller.C_Max_Hp,
             C_ST = player_Controller.C_St,
@@ -391,16 +389,16 @@ public class Data_Manager : MonoBehaviour
             Basic_Game_Kit = game_Manager.Basic_Game_Kit,
             Set_2 = game_Manager.Set_2
         };
-        // 기존 리스트에 Index번째 덮어쓰기 or 새로 추가
+
         if (rootData.Datas.Count > Index)
         {
             rootData.Datas[Index] = newSave;
         }
         else
         {
-            // Index가 범위를 초과하면 빈 슬롯을 채우고 추가
+
             while (rootData.Datas.Count < Index)
-                rootData.Datas.Add(new SaveData()); // 빈 데이터로 채움
+                rootData.Datas.Add(new SaveData());
 
             rootData.Datas.Add(newSave);
         }
@@ -455,15 +453,11 @@ public class Data_Manager : MonoBehaviour
         }
 
         curent_Data = rootData.Datas[index];
-
-        // 필요한 데이터 적용은 여기서 구현
-        
         
         if (player != null && !Data_RePlace)
         {
             int Count = curent_Data.map.Field_Items.Count;
 
-            // Stats
             player_Controller.Hp = curent_Data.player.B_HP;
             player_Controller.Max_Hp = curent_Data.player.B_MaxHP;
             player_Controller.St = curent_Data.player.B_ST;
@@ -490,7 +484,6 @@ public class Data_Manager : MonoBehaviour
             int Step_count = game_Manager.Monsters_OBJ.Count;
             for (int i = 0; i < Step_count; i++)
             {
-                // game_Manager.Monsters_OBJ[i]
                 
                 Destroy(game_Manager.Monsters_OBJ[i], 0.01f);
                 game_Manager.Monsters_OBJ.Remove(game_Manager.Monsters_OBJ[i]);

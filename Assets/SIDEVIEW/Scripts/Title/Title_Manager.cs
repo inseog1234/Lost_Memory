@@ -1,11 +1,8 @@
-using System.Collections;
-using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-// using UnityEngine.UI;
+
 public class Title_Manager : MonoBehaviour
 {
     private GameObject[] targetObjects = new GameObject[5];
@@ -364,11 +361,11 @@ public class Title_Manager : MonoBehaviour
             SetCollider(targetObjects[4].GetComponent<BoxCollider2D>(), new Vector2(12, 0), new Vector2(-2.5f, 0), speed);
 
             RectTransform rect = Game_Data_UI.GetComponent<RectTransform>();
-            rect.anchoredPosition = Vector2.Lerp(rect.anchoredPosition, new Vector2(1300, 0), 3 * Time.deltaTime);
+            rect.anchoredPosition = Vector2.Lerp(rect.anchoredPosition, new Vector2(1500, 0), 3 * Time.deltaTime);
         }
         else if (Step == 1)
         {
-            Vector3 Pos = new Vector3(-10.5f, 0, 0);
+            Vector3 Pos = new Vector3(-9f, 0, 0);
 
             transform.localPosition = Vector3.Lerp(transform.localPosition, Pos, speed * Time.deltaTime);
 
